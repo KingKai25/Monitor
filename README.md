@@ -1,301 +1,300 @@
-# Warehouse Monitoring System (ESP32)
+﻿# Hệ Thống Giám Sát Kho Hàng (ESP32)
 
-A comprehensive IoT-based warehouse monitoring system with employee access control, environmental monitoring, and power consumption tracking.
+Hệ thống giám sát kho hàng IoT toàn diện với kiểm soát truy cập nhân viên, giám sát môi trường và theo dõi tiêu thụ điện năng.
 
-## Features
+## Tính Năng
 
-### 🔐 Access Control
-- **Fingerprint Recognition**: AS608 fingerprint sensor for employee authentication
-- **Automatic Logging**: Employee entry/exit recorded to Google Sheets with timestamp
-- **Employee Database**: Store up to 10 enrolled fingerprints (configurable)
+### 🔐 Kiểm Soát Truy Cập
+- **Nhận dạng vân tay**: Cảm biến vân tay AS608 để xác thực nhân viên
+- **Ghi nhận tự động**: Lưu vào/ra của nhân viên lên Google Sheets kèm thời gian
+- **Cơ sở dữ liệu nhân viên**: Lưu trữ tối đa 81 vân tay đã đăng ký (có thể cấu hình)
 
-### 📊 Environmental Monitoring
-- **Temperature & Humidity**: DHT11 sensor with real-time monitoring
-- **Smoke Detection**: MQ2 analog sensor for air quality
-- **Fire Detection**: Dedicated fire sensor with automatic alerts
-- **Temperature-based Alerts**: Triggers buzzer on high temperature
+### 📊 Giám Sát Môi Trường
+- **Nhiệt độ & Độ ẩm**: Cảm biến DHT11 giám sát thời gian thực
+- **Phát hiện khói**: Cảm biến MQ2 analog kiểm tra chất lượng không khí
+- **Phát hiện cháy**: Cảm biến lửa chuyên dụng với cảnh báo tự động
+- **Cảnh báo nhiệt độ**: Kích hoạt còi khi nhiệt độ cao
 
-### ⚡ Power Monitoring
-- **PZEM-004T v3**: Real-time power consumption measurement
-  - Voltage (0-300V)
-  - Current (0-100A)
-  - Power (0-23000W)
-  - Energy consumption (kWh)
-  - Frequency (Hz)
-  - Power factor
+### ⚡ Giám Sát Điện Năng
+- **PZEM-004T v3**: Đo tiêu thụ điện năng thời gian thực
+  - Điện áp (0-300V)
+  - Dòng điện (0-100A)
+  - Công suất (0-23000W)
+  - Năng lượng tiêu thụ (kWh)
+  - Tần số (Hz)
+  - Hệ số công suất
 
-### 💡 Light Control
-- **Relay Control**: ON/OFF control via physical button or mobile app
-- **Remote Control**: Blynk app integration for wireless control
-- **Power Tracking**: Monitor light bulb power consumption
+### 💡 Điều Khiển Đèn
+- **Điều khiển Relay**: Bật/tắt qua nút nhấn vật lý hoặc ứng dụng di động
+- **Điều khiển từ xa**: Tích hợp ứng dụng Blynk
+- **Theo dõi điện năng**: Giám sát tiêu thụ điện của bóng đèn
 
-### 📱 Mobile App & Cloud Integration
-- **Blynk Integration**: Real-time sensor dashboard
-  - Temperature graph
-  - Humidity display
-  - Smoke/fire alerts
-  - Power consumption charts
-  - Light control switch
-- **Google Sheets Logging**: Automatic data backup
-- **Push Notifications**: Alert notifications on mobile
+### 📱 Ứng Dụng Di Động & Tích Hợp Cloud
+- **Tích hợp Blynk**: Bảng điều khiển cảm biến thời gian thực
+  - Biểu đồ nhiệt độ
+  - Hiển thị độ ẩm
+  - Cảnh báo khói/cháy
+  - Biểu đồ tiêu thụ điện
+  - Công tắc điều khiển đèn
+- **Ghi log Google Sheets**: Sao lưu dữ liệu tự động
+- **Thông báo đẩy**: Cảnh báo trên điện thoại
 
-### 🚨 Alert System
-- **Buzzer Notifications**: Audio alerts for critical events
-- **Multi-level Alerts**: Fire, smoke, high temperature detection
-- **Event Logging**: All alerts logged to cloud
+### 🚨 Hệ Thống Cảnh Báo
+- **Thông báo còi**: Cảnh báo âm thanh cho sự kiện nghiêm trọng
+- **Cảnh báo đa cấp**: Phát hiện cháy, khói, nhiệt độ cao
+- **Ghi log sự kiện**: Tất cả cảnh báo được ghi lên cloud
 
-## Hardware Components
+## Linh Kiện Phần Cứng
 
 ```
-📦 Main Controller
-└── ESP32 Development Board
+📦 Bộ Điều Khiển Chính
+└── Board phát triển ESP32
 
-🎯 Sensors & Inputs
-├── AS608 Fingerprint Module (UART1)
-├── DHT11 Temperature/Humidity (GPIO25)
-├── MQ2 Smoke Sensor (ADC GPIO35)
-├── Fire Detection Sensor (GPIO36)
-└── Physical Button (GPIO34)
+🎯 Cảm Biến & Đầu Vào
+├── Module vân tay AS608 (UART2 - Serial2)
+├── Cảm biến nhiệt độ/độ ẩm DHT11 (GPIO32)
+├── Cảm biến khói MQ2 (ADC GPIO25)
+├── Cảm biến lửa (GPIO33)
+└── Nút nhấn vật lý (GPIO26)
 
-⚡ Power Management
-├── PZEM-004T Power Monitor (UART2)
-└── Relay Module (GPIO32)
+⚡ Quản Lý Điện Năng
+├── Module đo điện PZEM-004T (UART1 - Serial1)
+└── Module Relay (GPIO23)
 
-🔊 Output Devices
-├── Buzzer/Piezo Speaker (GPIO33)
-└── 5V DC Power Supply
+🔊 Thiết Bị Đầu Ra
+├── Còi/Buzzer (GPIO4)
+└── Nguồn cấp 5V DC
 
-📡 Connectivity
-└── WiFi (Built-in ESP32)
+📡 Kết Nối
+└── WiFi (tích hợp sẵn ESP32)
 ```
 
-## Pin Mapping
+## Sơ Đồ Chân GPIO
 
-| Component | Pin | Interface | Baudrate |
-|-----------|-----|-----------|----------|
-| DHT11 | GPIO25 | 1-Wire | - |
-| MQ2 | GPIO35 | Analog ADC | - |
-| Fire Sensor | GPIO36 | Analog ADC | - |
-| Button | GPIO34 | Digital | - |
-| Buzzer | GPIO33 | Digital PWM | - |
-| Relay | GPIO32 | Digital | - |
-| AS608 | TX:GPIO10, RX:GPIO9 | UART1 | 57600 |
-| PZEM-004T | TX:GPIO17, RX:GPIO16 | UART2 | 9600 |
+| Thiết Bị | Chân | Giao Tiếp | Tốc Độ |
+|----------|------|-----------|--------|
+| DHT11 | GPIO32 (D32) | 1-Wire | - |
+| MQ2 | GPIO25 (D25) | Analog ADC | - |
+| Cảm biến lửa | GPIO33 (D33) | Analog ADC | - |
+| Nút nhấn | GPIO26 (D26) | Digital | - |
+| Còi/Buzzer | GPIO4 (D4) | Digital | - |
+| Relay | GPIO23 (D23) | Digital | - |
+| AS608 | TX:GPIO17, RX:GPIO16 | UART2 (Serial2) | 57600 |
+| PZEM-004T | TX:GPIO18, RX:GPIO19 | UART1 (Serial1) | 9600 |
 
-## Installation & Setup
+## Cài Đặt & Thiết Lập
 
-### 1. PlatformIO Setup
+### 1. Thiết lập PlatformIO
 ```bash
-# Install VS Code + PlatformIO extension
-# Clone/open this project
+# Cài đặt VS Code + Extension PlatformIO
+# Clone/mở dự án này
 cd /path/to/Monitor
 ```
 
-### 2. Configure Credentials
-Edit `include/config.h`:
+### 2. Cấu hình thông tin xác thực
+Sửa file `include/config.h`:
 ```cpp
-#define WIFI_SSID "YOUR_SSID"
-#define WIFI_PASSWORD "YOUR_PASSWORD"
-#define BLYNK_AUTH_TOKEN "YOUR_BLYNK_AUTH_TOKEN"
-#define GOOGLE_SCRIPT_ID "YOUR_GOOGLE_SCRIPT_ID"
+#define WIFI_SSID "TEN_WIFI_CUA_BAN"
+#define WIFI_PASSWORD "MAT_KHAU_WIFI"
+#define BLYNK_AUTH_TOKEN "TOKEN_BLYNK_CUA_BAN"
+#define GOOGLE_SCRIPT_ID "SCRIPT_ID_GOOGLE_CUA_BAN"
 ```
 
-### 3. Upload Firmware
+### 3. Nạp Firmware
 ```bash
-# In PlatformIO terminal
+# Trong terminal PlatformIO
 pio run -t upload
 
-# Or in VS Code: PlatformIO: Upload
+# Hoặc trong VS Code: PlatformIO: Upload
 ```
 
-### 4. Monitor Serial Output
+### 4. Theo dõi Serial
 ```bash
 pio device monitor --baud 115200
 ```
 
-## Configuration Guide
+## Hướng Dẫn Cấu Hình
 
-### Blynk Setup
-1. **Create Blynk Account**: https://blynk.cloud/
-2. **Create Template**: 
-   - Name: "Warehouse Monitor"
+### Thiết lập Blynk
+1. **Tạo tài khoản Blynk**: https://blynk.cloud/
+2. **Tạo Template**: 
+   - Tên: "Warehouse Monitor"
    - Board: ESP32 Dev Board
-3. **Configure Virtual Pins**:
-   - V0-V12: Mapped in source code
-4. **Create Device** from template
-5. **Copy Auth Token** to `config.h`
+3. **Cấu hình Virtual Pin**:
+   - V0-V12: Đã ánh xạ trong mã nguồn
+4. **Tạo Device** từ template
+5. **Copy Auth Token** vào `config.h`
 
-### Google Sheets Integration
-1. **Create Google Apps Script**:
-   - Go to https://script.google.com/
-   - Create new project
-   - Paste script from `docs/google_sheets_script.gs`
-   - Deploy as web app (public access)
-   - Copy script ID to `config.h`
+### Tích hợp Google Sheets
+1. **Tạo Google Apps Script**:
+   - Truy cập https://script.google.com/
+   - Tạo dự án mới
+   - Dán code từ `docs/google_sheets_script.gs`
+   - Deploy dạng web app (truy cập công khai)
+   - Copy Script ID vào `config.h`
 
-2. **Create Google Sheet**:
-   - Create new sheet for logging
-   - Script will write to "AccessLog", "AlertLog", "DeviceStatus" sheets
+2. **Tạo Google Sheet**:
+   - Tạo sheet mới để ghi log
+   - Script sẽ ghi vào các sheet "AccessLog", "AlertLog", "DeviceStatus"
 
-### AS608 Fingerprint Setup
-1. **Calibrate Sensor**:
-   - Power on module
-   - Place finger firmly for 3 seconds
-   - Lift and repeat
-2. **Enrollment**:
-   - Send UART command via app/serial monitor
-   - Place finger 3 times when prompted
-3. **Verification**:
-   - System auto-checks on device power-on
+### Thiết lập Cảm biến vân tay AS608
+1. **Hiệu chuẩn cảm biến**:
+   - Cấp nguồn module
+   - Đặt ngón tay chắc chắn trong 3 giây
+   - Nhấc và lặp lại
+2. **Đăng ký vân tay**:
+   - Gửi lệnh qua ứng dụng/serial monitor
+   - Đặt ngón tay 3 lần khi được yêu cầu
+3. **Xác thực**:
+   - Hệ thống tự kiểm tra khi bật nguồn
 
-## Usage
+## Sử Dụng
 
-### Employee Access Control
-1. Employee places finger on AS608 sensor
-2. System captures and verifies fingerprint
-3. If match found:
-   - ✓ Logs entry/exit to Google Sheets
-   - ✓ Records timestamp
-   - ✓ Buzzer sounds (success tone)
-4. If no match:
-   - ✗ Buzzer sounds (failure tone)
-   - ✗ Alert logged
+### Kiểm soát truy cập nhân viên
+1. Nhân viên đặt ngón tay lên cảm biến AS608
+2. Hệ thống chụp và xác thực vân tay
+3. Nếu khớp:
+   - ✓ Ghi lịch sử vào/ra lên Google Sheets
+   - ✓ Ghi nhận thời gian
+   - ✓ Còi kêu (âm thành công)
+4. Nếu không khớp:
+   - ✗ Còi kêu (âm thất bại)
+   - ✗ Ghi log cảnh báo
 
-### Light Control - Physical Button
-- **Short Press**: Toggle light ON/OFF
-- **Long Press** (2s): Emergency shutdown (future)
+### Điều khiển đèn - Nút nhấn vật lý
+- **Nhấn ngắn**: Bật/tắt đèn
+- **Nhấn giữ** (2 giây): Tắt khẩn cấp (tương lai)
 
-### Light Control - Mobile App
-- Open Blynk app
-- Toggle "Light Control" switch (V1)
-- See power consumption in real-time
+### Điều khiển đèn - Ứng dụng di động
+- Mở Blynk app
+- Bật/tắt công tắc "Điều khiển đèn" (V1)
+- Xem tiêu thụ điện thời gian thực
 
-### Environmental Monitoring
-- **Temperature**: Displayed on app graph
-- **Humidity**: Shows in dashboard
-- **Smoke Level**: Analog value 0-1023
-- **Fire**: Red alert if triggered
-- All readings update every 5 seconds
+### Giám sát môi trường
+- **Nhiệt độ**: Hiển thị trên biểu đồ app
+- **Độ ẩm**: Hiển thị trên bảng điều khiển
+- **Mức khói**: Giá trị analog 0-1023
+- **Cháy**: Cảnh báo đỏ khi kích hoạt
+- Tất cả số liệu cập nhật mỗi 5 giây
 
-### Power Monitoring
-- **Live Metrics**:
-  - Voltage (V)
-  - Current (A)
-  - Power (W)
-  - Energy (kWh)
-  - Frequency (Hz)
-  - Power Factor
-- **Graphs**: Energy consumption over time
+### Giám sát điện năng
+- **Số liệu trực tiếp**:
+  - Điện áp (V)
+  - Dòng điện (A)
+  - Công suất (W)
+  - Năng lượng (kWh)
+  - Tần số (Hz)
+  - Hệ số công suất
+- **Biểu đồ**: Tiêu thụ năng lượng theo thời gian
 
-## Blynk Virtual Pin Mapping
+## Bảng Ánh Xạ Virtual Pin Blynk
 
-| V# | Function | Type | Description |
-|----|----------|------|-------------|
-| V0 | - | - | *Reserved* |
-| V1 | Light Control | Button/Switch | ON/OFF light relay |
-| V2 | Buzzer Test | Button | Test buzzer output |
-| V3 | Temperature | Gauge/Chart | °C reading |
-| V4 | Humidity | Gauge | % RH reading |
-| V5 | Smoke Level | Gauge | ADC 0-1023 |
-| V6 | Power | Gauge/Chart | Watts |
-| V7 | Energy | Gauge | kWh consumed |
-| V8 | Voltage | Gauge | Volts |
-| V9 | Current | Gauge | Amps |
-| V10 | Fire Alert | LED | Critical alert |
-| V11 | Smoke Alert | LED | Warning alert |
-| V12 | Light Status | LED | Light state indicator |
+| V# | Chức Năng | Loại | Mô Tả |
+|----|-----------|------|--------|
+| V0 | - | - | *Dự phòng* |
+| V1 | Điều khiển đèn | Nút/Công tắc | Bật/tắt relay đèn |
+| V2 | Test còi | Nút | Thử nghiệm còi |
+| V3 | Nhiệt độ | Đồng hồ/Biểu đồ | Đọc °C |
+| V4 | Độ ẩm | Đồng hồ | Đọc % RH |
+| V5 | Mức khói | Đồng hồ | ADC 0-1023 |
+| V6 | Công suất | Đồng hồ/Biểu đồ | Watt |
+| V7 | Năng lượng | Đồng hồ | kWh tiêu thụ |
+| V8 | Điện áp | Đồng hồ | Volt |
+| V9 | Dòng điện | Đồng hồ | Ampe |
+| V10 | Cảnh báo cháy | LED | Cảnh báo nghiêm trọng |
+| V11 | Cảnh báo khói | LED | Cảnh báo |
+| V12 | Trạng thái đèn | LED | Chỉ báo trạng thái đèn |
 
-## Threshold Configuration
+## Cấu Hình Ngưỡng Cảnh Báo
 
-Edit `include/config.h`:
+Sửa `include/config.h`:
 
 ```cpp
-#define SMOKE_THRESHOLD 400      // MQ2 analog value
+#define SMOKE_THRESHOLD 400      // Giá trị analog MQ2
 #define TEMP_THRESHOLD 40        // °C
-#define FIRE_THRESHOLD 500       // ADC value
+#define FIRE_THRESHOLD 500       // Giá trị ADC
 #define HUMIDITY_WARNING 80      // % RH
 ```
 
-## Troubleshooting
+## Xử Lý Sự Cố
 
-### AS608 Not Responding
-- Check baud rate: 57600
-- Verify RX/TX pins (GPIO9/GPIO10)
-- Test with serial monitor at 57600 baud
+### AS608 không phản hồi
+- Kiểm tra tốc độ baud: 57600
+- Kiểm tra chân RX/TX (GPIO16/GPIO17)
+- Test với serial monitor ở 57600 baud
 
-### PZEM Not Reading
-- Check baud rate: 9600
-- Verify module slave ID (default 0xF8)
-- Load test (turn on light) to see readings
+### PZEM không đọc được
+- Kiểm tra tốc độ baud: 9600
+- Kiểm tra slave ID (mặc định 0xF8)
+- Bật tải (bật đèn) để xem giá trị
 
-### WiFi Connection Failed
-- Check SSID/password in `config.h`
-- Verify ESP32 antenna connection
-- Check WiFi signal strength
+### Kết nối WiFi thất bại
+- Kiểm tra SSID/mật khẩu trong `config.h`
+- Kiểm tra anten ESP32
+- Kiểm tra cường độ tín hiệu WiFi
 
-### Blynk Not Syncing
-- Verify auth token
-- Check internet connection
-- Restart app and device
-- Re-paste token if needed
+### Blynk không đồng bộ
+- Kiểm tra auth token
+- Kiểm tra kết nối internet
+- Khởi động lại app và thiết bị
+- Dán lại token nếu cần
 
-### Google Sheets Not Logging
-- Test webhook in browser
-- Check script deployment is active
-- Verify sheet URL in config
-- Check internet latency
+### Google Sheets không ghi log
+- Test webhook trên trình duyệt
+- Kiểm tra script deployment đang hoạt động
+- Kiểm tra URL sheet trong config
+- Kiểm tra độ trễ internet
 
-## Future Enhancements
+## Nâng Cấp Trong Tương Lai
 
-- [ ] Database for employee fingerprint storage
-- [ ] RFID card alternative authentication
-- [ ] Motion detection sensors
-- [ ] UDP/MQTT protocols for faster updates
-- [ ] Local web dashboard (mDNS)
-- [ ] Multi-zone temperature monitoring
-- [ ] Historical data analytics
-- [ ] Scheduled automation (time-based actions)
-- [ ] Email alerts for critical events
-- [ ] Video integration with camera module
+- [ ] Cơ sở dữ liệu lưu trữ vân tay nhân viên
+- [ ] Xác thực thay thế bằng thẻ RFID
+- [ ] Cảm biến phát hiện chuyển động
+- [ ] Giao thức UDP/MQTT cập nhật nhanh hơn
+- [ ] Bảng điều khiển web cục bộ (mDNS)
+- [ ] Giám sát nhiệt độ đa vùng
+- [ ] Phân tích dữ liệu lịch sử
+- [ ] Tự động hóa theo lịch (hành động theo thời gian)
+- [ ] Cảnh báo email cho sự kiện nghiêm trọng
+- [ ] Tích hợp camera video
 
-## API Reference
+## Tham Chiếu API
 
-### Main Functions
+### Hàm Chính
 ```cpp
-// Light control
+// Điều khiển đèn
 controlLight(bool state);
 
-// Sensor reading
+// Đọc cảm biến
 readDHTSensors();
 readMQ2Smoke();
 readPZEMData();
 checkFireAlert();
 
-// Fingerprint
+// Vân tay
 fingerprint.enrollNewFingerprint(uint8_t id);
 fingerprint.verifyFingerprint(uint8_t& matchedId);
 
-// Cloud logging
+// Ghi log cloud
 cloudLogger.logAccess(empId, empName, action, success);
 cloudLogger.logAlert(type, value, severity);
 
-// Power monitoring
+// Giám sát điện
 powerMonitor.readAll(v, i, p, e);
 ```
 
-## License
+## Giấy Phép
 
-MIT License - See LICENSE file for details
+Giấy phép MIT - Xem file LICENSE để biết chi tiết
 
-## Support
+## Hỗ Trợ
 
-For issues, questions, or feature requests, please open an issue in the repository.
+Nếu có vấn đề, câu hỏi hoặc yêu cầu tính năng, vui lòng mở issue trong repository.
 
-## Author
+## Tác Giả
 
-Built with ESP32, PlatformIO, and Blynk
+Xây dựng với ESP32, PlatformIO và Blynk
 
 ---
 
-**Last Updated**: March 2026
-**Firmware Version**: 1.0.0
+**Cập nhật lần cuối**: Tháng 3, 2026

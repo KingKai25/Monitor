@@ -1,208 +1,208 @@
-# AS608 Fingerprint Sensor Implementation Guide
+﻿# Hướng Dẫn Triển Khai Cảm Biến Vân Tay AS608
 
-Complete guide for AS608 fingerprint authentication in the warehouse monitoring system.
+Hướng dẫn đầy đủ cho xác thực vân tay AS608 trong hệ thống giám sát kho hàng.
 
-## Overview
+## Tổng Quan
 
-**AS608 Optical Fingerprint Module**
-- Baud Rate: 57600 bps
-- Communication: Serial UART
-- Mode: 1:1 verification and 1:N identification
-- Storage Capacity: 163 fingerprints (configurable by library)
-- Template Size: 256 bytes per fingerprint
+**Module Vân Tay Quang Học AS608**
+- Tốc độ Baud: 57600 bps
+- Giao tiếp: UART Serial
+- Chế độ: Xác thực 1:1 và Nhận dạng 1:N
+- Dung lượng lưu trữ: 163 vân tay (cấu hình theo thư viện)
+- Kích thước mẫu: 256 byte mỗi vân tay
 
-## Pin Configuration
+## Cấu Hình Chân
 
 ```
-AS608 Pin    | Signal      | ESP32 Pin
+Chân AS608   | Tín Hiệu   | Chân ESP32
 -------------|-------------|----------
-1 (VCC)      | 3.3V Power  | 3.3V
-2 (GND)      | Ground      | GND
-3 (RX)       | Serial RX   | GPIO9
-4 (TX)       | Serial TX   | GPIO10
-(Shield)     | Ground      | GND
+1 (VCC)      | Nguồn 3.3V | 3.3V
+2 (GND)      | Ground     | GND
+3 (RX)       | Serial RX  | GPIO17 (TX2)
+4 (TX)       | Serial TX  | GPIO16 (RX2)
+(Vỏ)         | Ground     | GND
 ```
 
-**UART1 Configuration** (in firmware)
+**Cấu hình UART2 (Serial2)** (trong firmware)
 ```cpp
-#define FINGERPRINT_RX 9
-#define FINGERPRINT_TX 10
+#define FINGERPRINT_RX 16
+#define FINGERPRINT_TX 17
 SerialFinger.begin(57600, SERIAL_8N1, FINGERPRINT_RX, FINGERPRINT_TX);
 ```
 
-## Protocol Structure
+## Cấu Trúc Giao Thức
 
-### 1. Command Frame Format
-
-```
-Header (2 bytes) → 0xEF 0x01
-Address (4 bytes) → Device address (default: 0xFFFFFFFF)
-Package Identifier (1 byte) → Command/Response type
-Data Length (2 bytes) → Length of data + checksum
-Data (Variable) → Command parameters
-Checksum (2 bytes) → Verification
-```
-
-### 2. Package Types
+### 1. Định Dạng Khung Lệnh
 
 ```
-0x01 = Command package
-0x02 = Data package 
-0x07 = Ack package (response)
-0x08 = Error package
+Header (2 byte) → 0xEF 0x01
+Địa chỉ (4 byte) → Địa chỉ thiết bị (mặc định: 0xFFFFFFFF)
+ID Gói (1 byte) → Loại Lệnh/Phản hồi
+Độ dài dữ liệu (2 byte) → Độ dài dữ liệu + checksum
+Dữ liệu (Biến đổi) → Tham số lệnh
+Checksum (2 byte) → Xác minh
 ```
 
-### 3. Command Codes
-
-| Code | Function | Parameters |
-|------|----------|-----------|
-| 0x01 | System Info | None |
-| 0x20 | Image Capture | None |
-| 0x21 | Image to Buffer | Buffer ID (1-2) |
-| 0x22 | Image Download | Buffer ID |
-| 0x23 | Image Upload | Buffer ID |
-| 0x30 | Match 1:1 | Template ID |
-| 0x32 | Match 1:N | Start ID, Match Count |
-| 0x40 | Register Template | Buffer IDs (1,2) |
-| 0x41 | Store Template | Model ID (0-162) |
-| 0x42 | Delete Template | Model ID |
-| 0x43 | Clear All | None |
-| 0x44 | Template Count | None |
-| 0x45 | Read Template | Model ID |
-| 0x46 | Load Template | Model ID, Buffer ID |
-
-## Enrollment Process
-
-### Step-by-Step Enrollment
+### 2. Loại Gói
 
 ```
-User Input: "ENROLL 001"
+0x01 = Gói lệnh
+0x02 = Gói dữ liệu
+0x07 = Gói phản hồi (Ack)
+0x08 = Gói lỗi
+```
+
+### 3. Mã Lệnh
+
+| Mã | Chức Năng | Tham Số |
+|----|-----------|---------|
+| 0x01 | Thông tin hệ thống | Không |
+| 0x20 | Chụp ảnh | Không |
+| 0x21 | Ảnh ra Buffer | ID Buffer (1-2) |
+| 0x22 | Tải ảnh xuống | ID Buffer |
+| 0x23 | Upload ảnh | ID Buffer |
+| 0x30 | So khớp 1:1 | ID Template |
+| 0x32 | So khớp 1:N | ID bắt đầu, Số lượng |
+| 0x40 | Đăng ký Template | ID Buffer (1,2) |
+| 0x41 | Lưu Template | ID Model (0-162) |
+| 0x42 | Xóa Template | ID Model |
+| 0x43 | Xóa tất cả | Không |
+| 0x44 | Đếm Template | Không |
+| 0x45 | Đọc Template | ID Model |
+| 0x46 | Nạp Template | ID Model, ID Buffer |
+
+## Quy Trình Đăng Ký
+
+### Đăng Ký Từng Bước
+
+```
+Nhập người dùng: "ENROLL 001"
 │
-├─ Check if ID 001 is empty
+├─ Kiểm tra ID 001 còn trống không
 │
-├─ Prompt: "Place finger"
-│  └─ Capture image 1
-│     └─ Store in buffer 1
+├─ Hướng dẫn: "Đặt ngón tay"
+│  └─ Chụp ảnh 1
+│     └─ Lưu vào buffer 1
 │
-├─ Prompt: "Lift finger"
-│  └─ Wait 1-2 seconds
+├─ Hướng dẫn: "Nhấc ngón tay"
+│  └─ Chờ 1-2 giây
 │
-├─ Prompt: "Place same finger again"
-│  └─ Capture image 2
-│     └─ Store in buffer 2
+├─ Hướng dẫn: "Đặt lại ngón tay"
+│  └─ Chụp ảnh 2
+│     └─ Lưu vào buffer 2
 │
-├─ Compare features
-│  └─ If match score > threshold
-│     ├─ Create template
-│     ├─ Store in model ID 001
-│     └─ Success!
+├─ So sánh đặc điểm
+│  └─ Nếu điểm khớp > ngưỡng
+│     ├─ Tạo template
+│     ├─ Lưu vào model ID 001
+│     └─ Thành công!
 │     
-└─ Result: "Fingerprint enrolled - ID 001"
+└─ Kết quả: "Vân tay đã đăng ký - ID 001"
 ```
 
-### Implementation Code
+### Code Triển Khai
 
 ```cpp
 bool enrollFingerprints(uint8_t id) {
-  Serial.print("Enrolling ID: ");
+  Serial.print("Dang ky ID: ");
   Serial.println(id);
   
-  // Step 1: Check if ID exists
+  // Buoc 1: Kiem tra ID ton tai
   uint16_t templateCount = getTemplateCount();
   if (id < 1 || id > templateCount + 10) {
-    Serial.println("Invalid ID");
+    Serial.println("ID khong hop le");
     return false;
   }
   
-  // Step 2: First image capture
-  Serial.println(">> Place finger on sensor");
+  // Buoc 2: Chup anh lan 1
+  Serial.println(">> Dat ngon tay len cam bien");
   if (!captureImage()) {
-    return false; // Capture failed
-  }
-  
-  if (!convertImage(0x01)) {  // Store in buffer 1
     return false;
   }
   
-  // Step 3: Wait and second capture
+  if (!convertImage(0x01)) {  // Luu vao buffer 1
+    return false;
+  }
+  
+  // Buoc 3: Cho va chup lan 2
   delay(2000);
-  Serial.println(">> Place same finger again");
+  Serial.println(">> Dat lai ngon tay");
   
   if (!captureImage()) {
     return false;
   }
   
-  if (!convertImage(0x02)) {  // Store in buffer 2
+  if (!convertImage(0x02)) {  // Luu vao buffer 2
     return false;
   }
   
-  // Step 4: Create and store template
+  // Buoc 4: Tao va luu template
   if (!registerTemplate()) {
-    return false; // Feature mismatch
+    return false;
   }
   
   if (!storeTemplate(id)) {
     return false;
   }
   
-  Serial.println("✓ Fingerprint enrolled successfully!");
+  Serial.println("Van tay dang ky thanh cong!");
   return true;
 }
 ```
 
-## Verification Process
+## Quy Trình Xác Thực
 
-### 1:1 Verification (Specific ID)
+### Xác thực 1:1 (ID cụ thể)
 
 ```
-User places finger
+Người dùng đặt ngón tay
 │
-├─ Capture image
-├─ Convert to features
-└─ Compare with stored template ID
-    ├─ Score > Threshold? 
-    │  └─ YES: Match!
-    └─ NO: No match
+├─ Chụp ảnh
+├─ Chuyển đổi thành đặc điểm
+└─ So sánh với template ID đã lưu
+    ├─ Điểm > Ngưỡng?
+    │  └─ CÓ: Khớp!
+    └─ KHÔNG: Không khớp
 ```
 
-### 1:N Identification (Search all)
+### Nhận dạng 1:N (Tìm kiếm tất cả)
 
 ```
-User places finger
+Người dùng đặt ngón tay
 │
-├─ Capture image
-├─ Convert to features
-└─ Compare with ALL stored templates (0-162)
-    ├─ Found in buffer 0-162?
-    │  └─ YES: Match! Return ID
-    └─ NO: Not in database
+├─ Chụp ảnh
+├─ Chuyển đổi thành đặc điểm
+└─ So sánh với TẤT CẢ template đã lưu (0-162)
+    ├─ Tìm thấy trong buffer 0-162?
+    │  └─ CÓ: Khớp! Trả về ID
+    └─ KHÔNG: Không có trong cơ sở dữ liệu
 ```
 
-### Implementation Code
+### Code Triển Khai
 
 ```cpp
 bool verifyFingerprint(uint8_t targetId, uint16_t& score) {
-  Serial.println("Place finger on sensor");
+  Serial.println("Dat ngon tay len cam bien");
   
-  // Capture new image
+  // Chup anh moi
   if (!captureImage()) {
-    Serial.println("Capture failed");
+    Serial.println("Chup that bai");
     return false;
   }
   
-  // Convert to features (buffer 1)
+  // Chuyen doi thanh dac diem (buffer 1)
   if (!convertImage(0x01)) {
     return false;
   }
   
-  // Load stored template (targetId)
+  // Nap template da luu (targetId)
   if (!loadTemplate(targetId, 0x02)) {
     return false;
   }
   
-  // Compare features in buffer 1 vs buffer 2
+  // So sanh dac diem buffer 1 vs buffer 2
   if (compareTemplates(score)) {
-    Serial.print("Match! Score: ");
+    Serial.print("Khop! Diem: ");
     Serial.println(score);
     return true;
   }
@@ -211,23 +211,23 @@ bool verifyFingerprint(uint8_t targetId, uint16_t& score) {
 }
 
 bool searchFingerprint(uint16_t& foundId, uint16_t& score) {
-  Serial.println("Place finger on sensor");
+  Serial.println("Dat ngon tay len cam bien");
   
-  // Capture new image
+  // Chup anh moi
   if (!captureImage()) {
     return false;
   }
   
-  // Convert to features
+  // Chuyen doi thanh dac diem
   if (!convertImage(0x01)) {
     return false;
   }
   
-  // Search against all stored templates
+  // Tim kiem trong tat ca template da luu
   if (searchTemplate(0, 162, foundId, score)) {
-    Serial.print("Found match: ID ");
+    Serial.print("Tim thay: ID ");
     Serial.print(foundId);
-    Serial.print(" Score: ");
+    Serial.print(" Diem: ");
     Serial.println(score);
     return true;
   }
@@ -236,59 +236,59 @@ bool searchFingerprint(uint16_t& foundId, uint16_t& score) {
 }
 ```
 
-## Error Handling
+## Xử Lý Lỗi
 
-### Common Errors
+### Các Lỗi Thường Gặp
 
-| Code | Meaning | Solution |
-|------|---------|----------|
-| 0x00 | OK | No error |
-| 0x01 | Error receiving data | Check serial connection |
-| 0x02 | No finger detected | Ask user to place finger |
-| 0x03 | Fail to process image | Poor quality, try again |
-| 0x04 | Feature is not clear | Dirty sensor or bad position |
-| 0x05 | Not matching templates | ID not in database |
-| 0x06 | Not found | No match in 1:N search |
-| 0x07 | Invalid parameter | Wrong ID or index |
-| 0x08 | Template conflict | Two fingers too similar |
-| 0x09 | Address over-flow | ID > max capacity |
-| 0x0A | Template is empty | No data at that ID |
-| 0x0B | Flash read/write error | Hardware problem |
+| Mã | Ý Nghĩa | Giải Pháp |
+|----|----------|-----------|
+| 0x00 | OK | Không lỗi |
+| 0x01 | Lỗi nhận dữ liệu | Kiểm tra kết nối serial |
+| 0x02 | Không phát hiện ngón tay | Yêu cầu đặt ngón tay |
+| 0x03 | Xử lý ảnh thất bại | Chất lượng kém, thử lại |
+| 0x04 | Đặc điểm không rõ ràng | Cảm biến bẩn hoặc vị trí sai |
+| 0x05 | Template không khớp | ID không có trong database |
+| 0x06 | Không tìm thấy | Không khớp khi tìm 1:N |
+| 0x07 | Tham số không hợp lệ | ID hoặc chỉ mục sai |
+| 0x08 | Xung đột template | Hai ngón tay quá giống |
+| 0x09 | Tràn địa chỉ | ID > dung lượng tối đa |
+| 0x0A | Template trống | Không có dữ liệu tại ID đó |
+| 0x0B | Lỗi đọc/ghi Flash | Vấn đề phần cứng |
 
-### Error Handling Implementation
+### Code Xử Lý Lỗi
 
 ```cpp
 const char* getErrorMsg(uint8_t errorCode) {
   const char* errors[] = {
     "OK",
-    "Error receiving data",
-    "No finger on sensor",
-    "Image processing failed",
-    "Image too unclear",
-    "Fingerprints not matching",
-    "No match found",
-    "Invalid parameter",
-    "Template conflict",
-    "Address overflow",
-    "Template is empty",
-    "Flash read/write error"
+    "Loi nhan du lieu",
+    "Khong co ngon tay tren cam bien",
+    "Xu ly anh that bai",
+    "Anh qua mo",
+    "Van tay khong khop",
+    "Khong tim thay",
+    "Tham so khong hop le",
+    "Xung dot template",
+    "Tran dia chi",
+    "Template trong",
+    "Loi doc/ghi Flash"
   };
   
   if (errorCode < sizeof(errors)) {
     return errors[errorCode];
   }
-  return "Unknown error";
+  return "Loi khong xac dinh";
 }
 
 bool captureImageSafe(uint8_t maxAttempts = 3) {
   for (uint8_t attempt = 0; attempt < maxAttempts; attempt++) {
-    Serial.println("Scanning fingerprint...");
+    Serial.println("Dang quet van tay...");
     
     if (captureImage()) {
       return true;
     }
     
-    Serial.println("No finger detected, try again...");
+    Serial.println("Khong phat hien ngon tay, thu lai...");
     delay(500);
   }
   
@@ -296,96 +296,90 @@ bool captureImageSafe(uint8_t maxAttempts = 3) {
 }
 ```
 
-## Database Management
+## Quản Lý Cơ Sở Dữ Liệu
 
-### Template Storage
+### Lưu Trữ Template
 
 ```
-Memory Layout:
-├─ Templates 0-81: User pool (MAX_PROFILES)
-├─ Templates 82-162: Backup/Admin pool
-└─ System area: Device settings
+Bố cục bộ nhớ:
+├─ Template 0-81: Pool người dùng (MAX_PROFILES)
+├─ Template 82-162: Pool dự phòng/Quản trị
+└─ Vùng hệ thống: Cài đặt thiết bị
 ```
 
-### Store/Delete Operations
+### Thao Tác Lưu/Xóa
 
 ```cpp
-// Store template
+// Luu template
 bool storeTemplate(uint8_t modelId) {
-  // Create command: 0x41 with model ID
-  // Response confirms storage
   return sendCommand(0x41, modelId);
 }
 
-// Delete specific template
+// Xoa template cu the
 bool deleteTemplate(uint8_t modelId) {
-  // Command: 0x42 with model ID
   return sendCommand(0x42, modelId);
 }
 
-// Delete all templates
+// Xoa tat ca template
 bool deleteAllTemplates() {
-  // Command: 0x43, no data
   return sendCommand(0x43, 0);
 }
 
-// Get template count
+// Dem so template
 uint16_t getTemplateCount() {
-  // Command: 0x44
-  // Returns: count of stored templates
   return sendCommandWithResult(0x44);
 }
 ```
 
-## Integration with Employee System
+## Tích Hợp Với Hệ Thống Nhân Viên
 
-### Employee Database Structure
+### Cấu Trúc Cơ Sở Dữ Liệu Nhân Viên
 
 ```cpp
 struct EmployeeRecord {
-  uint8_t fingerprintId;      // AS608 template ID (1-81)
-  String employeeName;        // "John Doe"
-  String employeeId;          // "EMP001"
-  String department;          // "Warehouse"
-  time_t enrollmentDate;      // Enrollment timestamp
-  bool active;                // Active/Inactive
+  uint8_t fingerprintId;      // ID template AS608 (1-81)
+  String employeeName;        // "Nguyen Van A"
+  String employeeId;          // "NV001"
+  String department;          // "Kho hang"
+  time_t enrollmentDate;      // Thoi gian dang ky
+  bool active;                // Hoat dong/Khong hoat dong
 };
 
-// Store in EEPROM or cloud
+// Luu trong EEPROM hoac cloud
 EmployeeRecord employees[MAX_FINGERPRINTS] = {
-  {1, "John Doe", "EMP001", "Warehouse", 1698765432, true},
-  {2, "Jane Smith", "EMP002", "Management", 1698765432, true},
+  {1, "Nguyen Van A", "NV001", "Kho hang", 1698765432, true},
+  {2, "Tran Thi B", "NV002", "Quan ly", 1698765432, true},
   // ...
 };
 ```
 
-### Verification with Logging
+### Xác Thực Kèm Ghi Log
 
 ```cpp
 bool verifyAndLog(String& employeeName) {
   uint8_t foundId = 0;
   uint16_t score = 0;
   
-  // Verify fingerprint
+  // Xac thuc van tay
   if (!searchFingerprint(foundId, score)) {
-    Serial.println("No match");
+    Serial.println("Khong khop");
     return false;
   }
   
-  // Look up employee
+  // Tim nhan vien
   if (foundId < 1 || foundId > MAX_FINGERPRINTS) {
     return false;
   }
   
   if (!employees[foundId].active) {
-    Serial.println("Employee inactive");
+    Serial.println("Nhan vien khong hoat dong");
     return false;
   }
   
   employeeName = employees[foundId].employeeName;
   String action = getLastAction() == "OUT" ? "IN" : "OUT";
   
-  // Log to Google Sheets
+  // Ghi log len Google Sheets
   cloudLogger.logAccess(
     employees[foundId].employeeId,
     employees[foundId].employeeName,
@@ -393,126 +387,126 @@ bool verifyAndLog(String& employeeName) {
     true
   );
   
-  // Sound success buzzer
+  // Phat am thanh cong
   soundBuzzer(200);
   
   return true;
 }
 ```
 
-## Testing & Calibration
+## Kiểm Tra & Hiệu Chuẩn
 
-### 1. Sensor Test
+### 1. Test Cảm Biến
 ```bash
-1. Power on AS608
-2. Place different fingers
-3. Should show varying values (not constant 0 or 255)
-4. Clean sensor lens if values poor
+1. Bat nguon AS608
+2. Dat cac ngon tay khac nhau
+3. Gia tri phai thay doi (khong co dinh 0 hoac 255)
+4. Lau ong kinh cam bien neu gia tri kem
 ```
 
-### 2. Quality Check
+### 2. Kiểm Tra Chất Lượng
 ```
-Good image: 65+ score
-Fair image: 50-64 score
-Poor image: <50 score
+Ảnh tốt: Điểm 65+
+Ảnh trung bình: Điểm 50-64
+Ảnh kém: Điểm <50
 
-Action: If poor, clean sensor and try again
+Hành động: Nếu kém, lau cảm biến và thử lại
 ```
 
-### 3. Matching Threshold
+### 3. Ngưỡng Khớp
 ```cpp
 const uint8_t MATCH_THRESHOLD = 60;
-// Adjust based on false positive/negative rates
-// 60 = balanced
-// 70+ = stricter (more false neg)
-// 50- = lenient (more false pos)
+// Dieu chinh dua tren ty le false positive/negative
+// 60 = can bang
+// 70+ = nghiem ngat hon (nhieu false neg hon)
+// 50- = thoang hon (nhieu false pos hon)
 ```
 
-### 4. Diagnostic Commands
+### 4. Lệnh Chẩn Đoán
 
 ```cpp
 void diagnosticTest() {
-  Serial.println("=== AS608 Diagnostic ===");
+  Serial.println("=== Chan Doan AS608 ===");
   
-  // Test communication
+  // Test giao tiep
   if (isConnected()) {
-    Serial.println("✓ Sensor responding");
+    Serial.println("Cam bien phan hoi");
   } else {
-    Serial.println("✗ No response");
+    Serial.println("Khong co phan hoi");
     return;
   }
   
-  // Get device info
+  // Lay thong tin thiet bi
   uint16_t templateCount = getTemplateCount();
-  Serial.print("Stored templates: ");
+  Serial.print("Template da luu: ");
   Serial.println(templateCount);
   
-  // Test image capture
-  Serial.println("Place finger to test capture...");
+  // Test chup anh
+  Serial.println("Dat ngon tay de test chup...");
   if (captureImage()) {
-    Serial.println("✓ Image captured successfully");
+    Serial.println("Chup anh thanh cong");
   } else {
-    Serial.println("✗ Image capture failed");
+    Serial.println("Chup anh that bai");
   }
 }
 ```
 
-## Troubleshooting
+## Xử Lý Sự Cố
 
-| Problem | Cause | Solution |
-|---------|-------|----------|
-| **Module not responding** | Serial connection | Check RX/TX pins, baud rate |
-| **"No finger" always** | Optical window dirty | Clean with soft cloth |
-| **Poor image quality** | Dry fingers / bad lighting | Use different finger, moisten finger |
-| **Enrollment fails** | Images too different | Place finger same way twice |
-| **False negatives** | Threshold too high | Lower MATCH_THRESHOLD |
-| **False positives** | Threshold too low | Raise MATCH_THRESHOLD |
-| **Out of memory** | Too many templates | Delete unused entries |
+| Vấn Đề | Nguyên Nhân | Giải Pháp |
+|---------|-------------|-----------|
+| **Module không phản hồi** | Kết nối serial | Kiểm tra chân RX/TX (GPIO16/17), baud rate |
+| **Luôn báo "Không có ngón tay"** | Cửa sổ quang bẩn | Lau bằng vải mềm |
+| **Chất lượng ảnh kém** | Ngón tay khô/ánh sáng kém | Dùng ngón tay khác, làm ẩm ngón tay |
+| **Đăng ký thất bại** | Ảnh quá khác nhau | Đặt ngón tay giống nhau 2 lần |
+| **False negative** | Ngưỡng quá cao | Giảm MATCH_THRESHOLD |
+| **False positive** | Ngưỡng quá thấp | Tăng MATCH_THRESHOLD |
+| **Hết bộ nhớ** | Quá nhiều template | Xóa các mục không dùng |
 
-## Performance Metrics
+## Chỉ Số Hiệu Suất
 
 ```
-Capture Time: 200-300ms
-Image Processing: 100-200ms
-1:1 Matching: 150-200ms
-1:N Searching (162 templates): 1.5-2 seconds
-Enrollment Time: ~2 seconds
+Thời gian chụp: 200-300ms
+Xử lý ảnh: 100-200ms
+So khớp 1:1: 150-200ms
+Tìm kiếm 1:N (162 template): 1.5-2 giây
+Thời gian đăng ký: ~2 giây
 ```
 
-## Security Considerations
+## Lưu Ý Bảo Mật
 
-1. **Secure Enrollment**: Verify admin badge before enrollment
-2. **Template Backup**: Export templates to external storage
-3. **Duplicate Detection**: Check if fingerprint already enrolled
-4. **Access Logs**: Keep detailed audit trail
-5. **Inactive Users**: Disable old employees quickly
+1. **Đăng ký an toàn**: Xác minh thẻ admin trước khi đăng ký
+2. **Sao lưu template**: Xuất template ra bộ nhớ ngoài
+3. **Phát hiện trùng lặp**: Kiểm tra vân tay đã đăng ký chưa
+4. **Nhật ký truy cập**: Giữ log kiểm toán chi tiết
+5. **Người dùng không hoạt động**: Vô hiệu hóa nhân viên cũ nhanh chóng
 
-## References
+## Tham Khảo
 
-- AS608 Protocol Documentation
-- DFRobot AS608 Arduino Library
-- UART Serial Communication (115200 baud typical for ESP32)
-- Fingerprint Recognition Algorithms
+- Tài liệu giao thức AS608
+- Thư viện Arduino AS608 DFRobot
+- Giao tiếp UART Serial (115200 baud cho ESP32)
+- Thuật toán nhận dạng vân tay
 
-## Implementation Status
+## Trạng Thái Triển Khai
 
-- ✅ Header file: `include/fingerprint_sensor.h`
-- ✅ Source file: `src/fingerprint_sensor.cpp`
-- ⏳ Full protocol implementation (needs testing)
-- 📋 Integration with main.cpp (ready)
-- 📋 Employee database (to be implemented)
+- ✅ File header: `include/fingerprint_sensor.h`
+- ✅ File source: `src/fingerprint_sensor.cpp`
+- ⏳ Triển khai giao thức đầy đủ (cần test)
+- 📋 Tích hợp với main.cpp (sẵn sàng)
+- 📋 Cơ sở dữ liệu nhân viên (cần triển khai)
 
-## Next Steps
+## Bước Tiếp Theo
 
-1. Compile and upload firmware
-2. Test basic serial communication
-3. Enroll first fingerprint
-4. Test verification/identification
-5. Integrate with employee database
-6. Add to Google Sheets logging
-7. Test with multiple users
+1. Biên dịch và nạp firmware
+2. Test giao tiếp serial cơ bản
+3. Đăng ký vân tay đầu tiên
+4. Test xác thực/nhận dạng
+5. Tích hợp với cơ sở dữ liệu nhân viên
+6. Thêm ghi log Google Sheets
+7. Test với nhiều người dùng
 
 ---
 
-**Last Updated**: March 2026
-**Firmware Version**: 1.0.0 (AS608 Integration)
+**Cập nhật lần cuối**: Tháng 3, 2026
+**Phiên bản Firmware**: 1.0.1 (Tích hợp AS608)

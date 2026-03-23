@@ -1,426 +1,426 @@
-# Blynk App Configuration Guide
+﻿# Hướng Dẫn Cấu Hình Ứng Dụng Blynk
 
-Complete guide to setting up the Blynk mobile app dashboard for warehouse monitoring.
+Hướng dẫn đầy đủ thiết lập bảng điều khiển Blynk trên di động cho giám sát kho hàng.
 
-## 1. Blynk Account Setup
+## 1. Thiết Lập Tài Khoản Blynk
 
-### 1.1 Create Account
-1. Download Blynk app (iOS/Android)
+### 1.1 Tạo Tài Khoản
+1. Tải Blynk app (iOS/Android)
    - iOS: App Store
    - Android: Google Play Store
-2. Or go to https://blynk.cloud in browser
-3. Sign up with email address
-4. Verify email
+2. Hoặc truy cập https://blynk.cloud trên trình duyệt
+3. Đăng ký bằng email
+4. Xác minh email
 
-### 1.2 Create Organization (Optional)
-1. Log in to https://blynk.cloud
-2. Workspaces → Create new organization
-3. Name: "Warehouse Monitoring"
-4. Skip payment setup (free tier available)
+### 1.2 Tạo Tổ Chức (Tùy chọn)
+1. Đăng nhập https://blynk.cloud
+2. Workspaces → Tạo tổ chức mới
+3. Tên: "Giám Sát Kho Hàng"
+4. Bỏ qua thiết lập thanh toán (có gói miễn phí)
 
-## 2. Template Configuration
+## 2. Cấu Hình Template
 
-### 2.1 Create Template in Web Console
-1. Go to https://blynk.cloud
+### 2.1 Tạo Template Trên Web Console
+1. Truy cập https://blynk.cloud
 2. Developer Zone → Templates
-3. Click "+ Create Template"
+3. Nhấn "+ Create Template"
 
-**Template Settings:**
+**Cài đặt Template:**
 ```
 Template Name: Warehouse Monitor
-Description: ESP32-based warehouse monitoring system
+Description: Hệ thống giám sát kho hàng dựa trên ESP32
 Hardware: ESP32 Dev Board
 Connectivity: WiFi
 ```
 
-4. Save template
-5. **Copy and save:**
-   - TEMPLATE_ID (paste into config.h)
+4. Lưu template
+5. **Copy và lưu:**
+   - TEMPLATE_ID (dán vào config.h)
    - TEMPLATE_NAME
 
-### 2.2 Configure Data Streams
-Data streams define how data flows between device and app.
+### 2.2 Cấu Hình Datastream
+Datastream định nghĩa cách dữ liệu truyền giữa thiết bị và app.
 
-1. In template editor, click "Datastreams"
-2. Create following datastreams:
+1. Trong template editor, nhấn "Datastreams"
+2. Tạo các datastream sau:
 
-| Virtual Pin | Name | Type | Min | Max | Unit |
-|-------------|------|------|-----|-----|------|
+| Virtual Pin | Tên | Loại | Min | Max | Đơn vị |
+|-------------|-----|------|-----|-----|--------|
 | V0 | - | - | - | - | - |
-| V1 | Light Control | Switch | 0 | 1 | - |
-| V2 | Buzzer Test | Button | 0 | 1 | - |
-| V3 | Temperature | Sensor | 10 | 50 | °C |
-| V4 | Humidity | Sensor | 0 | 100 | % |
-| V5 | Smoke Level | Sensor | 0 | 1023 | ADC |
-| V6 | Power | Sensor | 0 | 5000 | W |
-| V7 | Energy | Sensor | 0 | 9999 | kWh |
-| V8 | Voltage | Sensor | 0 | 300 | V |
-| V9 | Current | Sensor | 0 | 100 | A |
-| V10 | Fire Alert | Indicator | 0 | 1 | - |
-| V11 | Smoke Alert | Indicator | 0 | 1 | - |
-| V12 | Light Status | Indicator | 0 | 1 | - |
+| V1 | Điều khiển đèn | Switch | 0 | 1 | - |
+| V2 | Test còi | Button | 0 | 1 | - |
+| V3 | Nhiệt độ | Sensor | 10 | 50 | °C |
+| V4 | Độ ẩm | Sensor | 0 | 100 | % |
+| V5 | Mức khói | Sensor | 0 | 1023 | ADC |
+| V6 | Công suất | Sensor | 0 | 5000 | W |
+| V7 | Năng lượng | Sensor | 0 | 9999 | kWh |
+| V8 | Điện áp | Sensor | 0 | 300 | V |
+| V9 | Dòng điện | Sensor | 0 | 100 | A |
+| V10 | Cảnh báo cháy | Indicator | 0 | 1 | - |
+| V11 | Cảnh báo khói | Indicator | 0 | 1 | - |
+| V12 | Trạng thái đèn | Indicator | 0 | 1 | - |
 
-3. Save each datastream
+3. Lưu từng datastream
 
-## 3. Device Creation
+## 3. Tạo Thiết Bị
 
-### 3.1 Add Device
-1. In Blynk.Cloud web console
+### 3.1 Thêm Thiết Bị
+1. Trong Blynk.Cloud web console
 2. Devices → "Create Device"
-3. **Device Settings:**
+3. **Cài đặt thiết bị:**
    ```
    Template: Warehouse Monitor
    Device Name: Warehouse_ESP32_Main
    ```
-4. Click "Create Device"
+4. Nhấn "Create Device"
 
-### 3.2 Get Authentication Token
-1. Device card appears in list
-2. Click the device
-3. Click "Device info"
-4. Copy **Auth Token** (long string)
-5. Paste into `config.h`:
+### 3.2 Lấy Authentication Token
+1. Card thiết bị xuất hiện trong danh sách
+2. Nhấn vào thiết bị
+3. Nhấn "Device info"
+4. Copy **Auth Token** (chuỗi dài)
+5. Dán vào `config.h`:
    ```cpp
-   #define BLYNK_AUTH_TOKEN "your_token_here"
+   #define BLYNK_AUTH_TOKEN "token_cua_ban"
    ```
 
-## 4. Mobile App Dashboard Setup
+## 4. Thiết Lập Bảng Điều Khiển Di Động
 
-### 4.1 Login to Mobile App
-1. Open Blynk app
-2. Log in with your email/password
-3. Workspaces → Select your workspace
-4. Devices → Select "Warehouse_ESP32_Main"
+### 4.1 Đăng Nhập App Di Động
+1. Mở Blynk app
+2. Đăng nhập bằng email/mật khẩu
+3. Workspaces → Chọn workspace
+4. Devices → Chọn "Warehouse_ESP32_Main"
 
-### 4.2 Create Dashboard
+### 4.2 Tạo Bảng Điều Khiển
 
-#### Widget Types Available:
-- **Button**: Digital ON/OFF control
-- **Slider**: Analog value 0-255
-- **Switch**: Toggle control
-- **Gauge**: Display analog value with needle
-- **Value Display**: Show numeric/text value
-- **Chart**: Time-series graph
-- **LED**: Visual indicator (on/off)
-- **Input**: Text input field
-- **Timer**: Schedule actions
-- **Map**: GPS location (optional)
+#### Các loại Widget có sẵn:
+- **Button**: Điều khiển bật/tắt số
+- **Slider**: Giá trị analog 0-255
+- **Switch**: Công tắc bật/tắt
+- **Gauge**: Hiển thị giá trị analog với kim
+- **Value Display**: Hiển thị giá trị số/chữ
+- **Chart**: Biểu đồ theo thời gian
+- **LED**: Chỉ báo trực quan (bật/tắt)
+- **Input**: Trường nhập văn bản
+- **Timer**: Lên lịch hành động
+- **Map**: Vị trí GPS (tùy chọn)
 
-### 4.3 Add Widgets for Light Control
+### 4.3 Thêm Widget Điều Khiển Đèn
 
-**Widget 1: Light Switch**
-1. Click "+" to add widget
-2. Select "Switch"
-3. **Settings:**
-   - Name: "Light Control"
+**Widget 1: Công tắc đèn**
+1. Nhấn "+" để thêm widget
+2. Chọn "Switch"
+3. **Cài đặt:**
+   - Tên: "Điều Khiển Đèn"
    - Virtual Pin: V1
-   - Send ON value: 1
-   - Send OFF value: 0
-4. Save
+   - Giá trị BẬT: 1
+   - Giá trị TẮT: 0
+4. Lưu
 
-**Widget 2: Light Status Indicator**
-1. Click "+" to add widget
-2. Select "LED"
-3. **Settings:**
-   - Name: "Light Status"
+**Widget 2: Chỉ báo trạng thái đèn**
+1. Nhấn "+" để thêm widget
+2. Chọn "LED"
+3. **Cài đặt:**
+   - Tên: "Trạng Thái Đèn"
    - Virtual Pin: V12
-   - Color: Yellow
-4. Save
+   - Màu: Vàng
+4. Lưu
 
-**Widget 3: Buzzer Test Button**
-1. Click "+" to add widget
-2. Select "Button"
-3. **Settings:**
-   - Name: "Test Buzzer"
+**Widget 3: Nút test còi**
+1. Nhấn "+" để thêm widget
+2. Chọn "Button"
+3. **Cài đặt:**
+   - Tên: "Test Còi"
    - Virtual Pin: V2
-   - Send ON only: Checked
-4. Save
+   - Chỉ gửi BẬT: Đánh dấu
+4. Lưu
 
-### 4.4 Add Widgets for Temperature Monitoring
+### 4.4 Thêm Widget Giám Sát Nhiệt Độ
 
-**Widget 4: Temperature Gauge**
-1. Click "+" to add widget
-2. Select "Gauge"
-3. **Settings:**
-   - Name: "Temperature"
+**Widget 4: Đồng hồ nhiệt độ**
+1. Nhấn "+" để thêm widget
+2. Chọn "Gauge"
+3. **Cài đặt:**
+   - Tên: "Nhiệt Độ"
    - Virtual Pin: V3
    - Min: 10
    - Max: 50
-   - Unit: °C
-   - Color: Blue
-4. Save
+   - Đơn vị: °C
+   - Màu: Xanh dương
+4. Lưu
 
-**Widget 5: Temperature Chart**
-1. Click "+" to add widget
-2. Select "Chart"
-3. **Settings:**
-   - Name: "Temperature History"
+**Widget 5: Biểu đồ nhiệt độ**
+1. Nhấn "+" để thêm widget
+2. Chọn "Chart"
+3. **Cài đặt:**
+   - Tên: "Lịch Sử Nhiệt Độ"
    - Virtual Pin: V3
-   - Unit: °C
-   - Time span: 24 hours (or custom)
-4. Save
+   - Đơn vị: °C
+   - Khoảng thời gian: 24 giờ (hoặc tùy chỉnh)
+4. Lưu
 
-### 4.5 Add Widgets for Humidity
+### 4.5 Thêm Widget Độ Ẩm
 
-**Widget 6: Humidity Gauge**
-1. Click "+" to add widget
-2. Select "Gauge"
-3. **Settings:**
-   - Name: "Humidity"
+**Widget 6: Đồng hồ độ ẩm**
+1. Nhấn "+" để thêm widget
+2. Chọn "Gauge"
+3. **Cài đặt:**
+   - Tên: "Độ Ẩm"
    - Virtual Pin: V4
    - Min: 0
    - Max: 100
-   - Unit: %
-   - Color: Cyan
-4. Save
+   - Đơn vị: %
+   - Màu: Cyan
+4. Lưu
 
-### 4.6 Add Widgets for Smoke Detection
+### 4.6 Thêm Widget Phát Hiện Khói
 
-**Widget 7: Smoke Level Gauge**
-1. Click "+" to add widget
-2. Select "Gauge"
-3. **Settings:**
-   - Name: "Smoke Level"
+**Widget 7: Đồng hồ mức khói**
+1. Nhấn "+" để thêm widget
+2. Chọn "Gauge"
+3. **Cài đặt:**
+   - Tên: "Mức Khói"
    - Virtual Pin: V5
    - Min: 0
    - Max: 1023
-   - Color: Orange
-4. Save
+   - Màu: Cam
+4. Lưu
 
-**Widget 8: Smoke Alert Indicator**
-1. Click "+" to add widget
-2. Select "LED"
-3. **Settings:**
-   - Name: "Smoke Alert"
+**Widget 8: Chỉ báo cảnh báo khói**
+1. Nhấn "+" để thêm widget
+2. Chọn "LED"
+3. **Cài đặt:**
+   - Tên: "Cảnh Báo Khói"
    - Virtual Pin: V11
-   - Color: Orange (alert) / Green (safe)
-   - On Text: "ALERT"
-   - Off Text: "SAFE"
-4. Save
+   - Màu: Cam (cảnh báo) / Xanh (an toàn)
+   - Chữ BẬT: "CẢNH BÁO"
+   - Chữ TẮT: "AN TOÀN"
+4. Lưu
 
-### 4.7 Add Widgets for Power Monitoring
+### 4.7 Thêm Widget Giám Sát Điện
 
-**Widget 9: Power Consumption Gauge**
-1. Click "+" to add widget
-2. Select "Gauge"
-3. **Settings:**
-   - Name: "Power (W)"
+**Widget 9: Đồng hồ công suất**
+1. Nhấn "+" để thêm widget
+2. Chọn "Gauge"
+3. **Cài đặt:**
+   - Tên: "Công Suất (W)"
    - Virtual Pin: V6
    - Min: 0
    - Max: 5000
-   - Unit: W
-   - Color: Red
-4. Save
+   - Đơn vị: W
+   - Màu: Đỏ
+4. Lưu
 
-**Widget 10: Power Chart**
-1. Click "+" to add widget
-2. Select "Chart"
-3. **Settings:**
-   - Name: "Power History"
+**Widget 10: Biểu đồ công suất**
+1. Nhấn "+" để thêm widget
+2. Chọn "Chart"
+3. **Cài đặt:**
+   - Tên: "Lịch Sử Công Suất"
    - Virtual Pin: V6
-   - Unit: W
-   - Time span: 24 hours
-4. Save
+   - Đơn vị: W
+   - Khoảng thời gian: 24 giờ
+4. Lưu
 
-**Widget 11: Energy Counter**
-1. Click "+" to add widget
-2. Select "Value Display"
-3. **Settings:**
-   - Name: "Energy Used"
+**Widget 11: Hiển thị năng lượng**
+1. Nhấn "+" để thêm widget
+2. Chọn "Value Display"
+3. **Cài đặt:**
+   - Tên: "Năng Lượng Tiêu Thụ"
    - Virtual Pin: V7
-   - Unit: kWh
-4. Save
+   - Đơn vị: kWh
+4. Lưu
 
-**Widget 12: Voltage Display**
-1. Click "+" to add widget
-2. Select "Gauge"
-3. **Settings:**
-   - Name: "Voltage"
+**Widget 12: Hiển thị điện áp**
+1. Nhấn "+" để thêm widget
+2. Chọn "Gauge"
+3. **Cài đặt:**
+   - Tên: "Điện Áp"
    - Virtual Pin: V8
    - Min: 0
    - Max: 300
-   - Unit: V
-   - Color: Green
-4. Save
+   - Đơn vị: V
+   - Màu: Xanh lá
+4. Lưu
 
-**Widget 13: Current Display**
-1. Click "+" to add widget
-2. Select "Gauge"
-3. **Settings:**
-   - Name: "Current"
+**Widget 13: Hiển thị dòng điện**
+1. Nhấn "+" để thêm widget
+2. Chọn "Gauge"
+3. **Cài đặt:**
+   - Tên: "Dòng Điện"
    - Virtual Pin: V9
    - Min: 0
    - Max: 100
-   - Unit: A
-   - Color: Purple
-4. Save
+   - Đơn vị: A
+   - Màu: Tím
+4. Lưu
 
-### 4.8 Add Fire Alert Widget
+### 4.8 Thêm Widget Cảnh Báo Cháy
 
-**Widget 14: Fire Alert LED**
-1. Click "+" to add widget
-2. Select "LED" (large preferred)
-3. **Settings:**
-   - Name: "FIRE ALERT"
+**Widget 14: LED cảnh báo cháy**
+1. Nhấn "+" để thêm widget
+2. Chọn "LED" (chọn kích thước lớn)
+3. **Cài đặt:**
+   - Tên: "CẢNH BÁO CHÁY"
    - Virtual Pin: V10
-   - Color: Red (alert) / Green (safe)
-   - On Text: "🔥 FIRE DETECTED!"
-   - Off Text: "✓ Safe"
-   - Font size: LARGE
-4. Save
+   - Màu: Đỏ (cảnh báo) / Xanh (an toàn)
+   - Chữ BẬT: "🔥 PHÁT HIỆN CHÁY!"
+   - Chữ TẮT: "✓ An Toàn"
+   - Cỡ chữ: LỚN
+4. Lưu
 
-## 5. Advanced App Features
+## 5. Tính Năng Nâng Cao
 
-### 5.1 Events & Notifications
-1. Go to device settings
-2. Enable "Device notifications"
-3. Push notifications will alert you of:
-   - Temperature > 40°C
-   - Smoke > 400 ADC
-   - Fire detected
-   - Light toggled
+### 5.1 Sự Kiện & Thông Báo
+1. Vào cài đặt thiết bị
+2. Bật "Device notifications"
+3. Thông báo đẩy sẽ cảnh báo:
+   - Nhiệt độ > 40°C
+   - Khói > 400 ADC
+   - Phát hiện cháy
+   - Bật/tắt đèn
 
-### 5.2 Event Logging
+### 5.2 Ghi Log Sự Kiện
 1. Device → View Events
-2. Logs all state changes with timestamps:
-   - Light on/off
-   - Alert triggers
-   - Connection status
+2. Ghi nhận tất cả thay đổi trạng thái với timestamp:
+   - Bật/tắt đèn
+   - Kích hoạt cảnh báo
+   - Trạng thái kết nối
 
-### 5.3 Device Timeline
-1. Device → Timeline tab
-2. Shows history of all events
-3. Can be exported
+### 5.3 Timeline Thiết Bị
+1. Device → Tab Timeline
+2. Hiển thị lịch sử tất cả sự kiện
+3. Có thể xuất file
 
-### 5.4 Automations (Premium)
-Create automatic responses:
-- Temperature > 40°C → Send notification + turn on fan
-- Smoke detected → Log event + sound alarm
-- Light on > 1 hour → Send reminder
+### 5.4 Tự Động Hóa (Premium)
+Tạo phản hồi tự động:
+- Nhiệt độ > 40°C → Gửi thông báo + bật quạt
+- Phát hiện khói → Ghi log + bật còi
+- Đèn bật > 1 giờ → Gửi nhắc nhở
 
-## 6. Dashboard Layout Tips
+## 6. Mẹo Bố Trí Bảng Điều Khiển
 
-### 6.1 Best Practices
-1. **Top Section**: Critical alerts (Fire, Smoke)
-2. **Middle Section**: Controls (Light switch, buttons)
-3. **Lower Section**: Monitoring gauges
-4. **Bottom Section**: History charts
+### 6.1 Thực Hành Tốt Nhất
+1. **Phần trên**: Cảnh báo nghiêm trọng (Cháy, Khói)
+2. **Phần giữa**: Điều khiển (Công tắc đèn, nút)
+3. **Phần dưới**: Đồng hồ giám sát
+4. **Phần đáy**: Biểu đồ lịch sử
 
-### 6.2 Responsive Design
-- Widgets auto-arrange for phone/tablet
-- Drag to reorder widgets
-- Resize widgets by dragging corners
-- Set large widgets for important info
+### 6.2 Thiết Kế Responsive
+- Widget tự sắp xếp cho điện thoại/máy tính bảng
+- Kéo để sắp xếp lại widget
+- Thay đổi kích thước widget bằng kéo góc
+- Đặt widget lớn cho thông tin quan trọng
 
-### 6.3 Color Coding
-- 🔴 Red: Critical alerts (Fire)
-- 🟠 Orange: Warnings (Smoke, High temp)
-- 🟡 Yellow: Caution (High power)
-- 🟢 Green: Safe/Normal
-- 🔵 Blue: Information (Temperature)
-- 🟣 Purple: Power metrics (Current)
+### 6.3 Mã Màu
+- 🔴 Đỏ: Cảnh báo nghiêm trọng (Cháy)
+- 🟠 Cam: Cảnh báo (Khói, Nhiệt độ cao)
+- 🟡 Vàng: Chú ý (Công suất cao)
+- 🟢 Xanh lá: An toàn/Bình thường
+- 🔵 Xanh dương: Thông tin (Nhiệt độ)
+- 🟣 Tím: Số liệu điện (Dòng điện)
 
-## 7. Mobile App Interface
+## 7. Giao Diện App Di Động
 
-### 7.1 Main Navigation
+### 7.1 Điều Hướng Chính
 ```
-Bottom Menu:
-├─ Devices (Device list)
-├─ Events (Activity log)
-├─ Automations (Scheduled actions)
-├─ Explorer (Data browser)
-└─ Settings (Account/app settings)
+Menu dưới:
+├─ Devices (Danh sách thiết bị)
+├─ Events (Log hoạt động)
+├─ Automations (Hành động theo lịch)
+├─ Explorer (Duyệt dữ liệu)
+└─ Settings (Cài đặt tài khoản/app)
 ```
 
-### 7.2 Device Screen
+### 7.2 Màn Hình Thiết Bị
 ```
 Header:
-├─ Device name: Warehouse_ESP32_Main
-├─ Status: Online/Offline 
-└─ Signal strength: WiFi RSSI
+├─ Tên thiết bị: Warehouse_ESP32_Main
+├─ Trạng thái: Online/Offline
+└─ Cường độ tín hiệu: WiFi RSSI
 
-Widgets:
-├─ Control widgets (Switches, buttons)
-├─ Indicator widgets (LEDs, values)
-├─ Monitoring widgets (Gauges, charts)
-└─ Alert widgets (Fire, Smoke)
+Widget:
+├─ Widget điều khiển (Công tắc, nút)
+├─ Widget chỉ báo (LED, giá trị)
+├─ Widget giám sát (Đồng hồ, biểu đồ)
+└─ Widget cảnh báo (Cháy, Khói)
 ```
 
-## 8. Testing the Setup
+## 8. Kiểm Tra Thiết Lập
 
-### 8.1 Test Connection
-1. Upload firmware to ESP32
-2. Monitor serial output for WiFi connection
-3. Check Blynk app - device appears as "Online" (blue dot)
+### 8.1 Test Kết Nối
+1. Nạp firmware lên ESP32
+2. Theo dõi serial output xem kết nối WiFi
+3. Kiểm tra Blynk app - thiết bị hiển thị "Online" (dấu chấm xanh)
 
-### 8.2 Test Widgets
-1. **Light Control**: Toggle switch → Relay clicks
-2. **Buzzer Test**: Click button → Buzzer sounds
-3. **Temperature**: Check gauge updates from sensor
-4. **Smoke Alert**: Test by simulating smoke input
-5. **Fire Alert**: Test fire sensor trigger
+### 8.2 Test Widget
+1. **Điều khiển đèn**: Bật/tắt công tắc → Relay click
+2. **Test còi**: Nhấn nút → Còi kêu
+3. **Nhiệt độ**: Kiểm tra đồng hồ cập nhật từ cảm biến
+4. **Cảnh báo khói**: Test bằng cách mô phỏng đầu vào khói
+5. **Cảnh báo cháy**: Test kích hoạt cảm biến lửa
 
-### 8.3 Test Notifications
-1. Enable push notifications in Blynk
-2. Trigger an alert condition
-3. Phone receives notification within 2-3 seconds
+### 8.3 Test Thông Báo
+1. Bật thông báo đẩy trong Blynk
+2. Kích hoạt điều kiện cảnh báo
+3. Điện thoại nhận thông báo trong 2-3 giây
 
-## 9. Troubleshooting
+## 9. Xử Lý Sự Cố
 
-| Issue | Solution |
-|-------|----------|
-| **Device shows "Offline"** | Check WiFi connection, restart app |
-| **Widgets not updating** | Check datastream virtual pins match code |
-| **No notifications** | Enable notifications in device settings |
-| **Switch state not syncing** | Check Blynk.virtualWrite in firmware |
-| **Chart not showing data** | May take 5+ minutes to populate |
+| Vấn Đề | Giải Pháp |
+|---------|-----------|
+| **Thiết bị hiển thị "Offline"** | Kiểm tra kết nối WiFi, khởi động lại app |
+| **Widget không cập nhật** | Kiểm tra virtual pin datastream khớp code |
+| **Không nhận thông báo** | Bật thông báo trong cài đặt thiết bị |
+| **Trạng thái công tắc không đồng bộ** | Kiểm tra Blynk.virtualWrite trong firmware |
+| **Biểu đồ không hiển thị dữ liệu** | Có thể mất 5+ phút để có dữ liệu |
 
-## 10. Advanced Customization
+## 10. Tùy Chỉnh Nâng Cao
 
-### 10.1 Custom Colors/Themes
-1. Go to device → Theme settings
-2. Choose dark/light mode
-3. Customize widget colors
+### 10.1 Màu/Giao diện tùy chỉnh
+1. Vào thiết bị → Cài đặt giao diện
+2. Chọn chế độ tối/sáng
+3. Tùy chỉnh màu widget
 
-### 10.2 Multiple Users
+### 10.2 Nhiều Người Dùng
 1. Device → Sharing
-2. Invite other users by email
-3. Set permission levels:
-   - Editor (full control)
-   - Viewer (read-only)
-   - Operator (control only)
+2. Mời người dùng khác bằng email
+3. Đặt cấp quyền:
+   - Editor (toàn quyền)
+   - Viewer (chỉ xem)
+   - Operator (chỉ điều khiển)
 
-### 10.3 Multiple Devices
-1. Create more devices from template
-2. Invite each with different auth token
-3. Switch between devices in app
+### 10.3 Nhiều Thiết Bị
+1. Tạo thêm thiết bị từ template
+2. Gán auth token khác cho mỗi thiết bị
+3. Chuyển đổi giữa các thiết bị trong app
 
-## 11. Blynk Web Console Features
+## 11. Tính Năng Blynk Web Console
 
-Access at https://blynk.cloud for:
-- Device management
-- Template editing
-- Data export (CSV)
-- Usage analytics
-- Team management
-- Billing (if premium)
+Truy cập https://blynk.cloud để:
+- Quản lý thiết bị
+- Chỉnh sửa template
+- Xuất dữ liệu (CSV)
+- Phân tích sử dụng
+- Quản lý nhóm
+- Thanh toán (nếu premium)
 
-## Summary
+## Tóm Tắt
 
-**Key Files Updated:**
-- ✅ config.h: Added BLYNK_AUTH_TOKEN and BLYNK_TEMPLATE_ID
-- ✅ main.cpp: Handles all virtual pin writes
-- ✅ cloud_logger.cpp: Blynk event logging
+**File đã cập nhật:**
+- ✅ config.h: Đã thêm BLYNK_AUTH_TOKEN và BLYNK_TEMPLATE_ID
+- ✅ main.cpp: Xử lý tất cả ghi virtual pin
+- ✅ cloud_logger.cpp: Ghi log sự kiện Blynk
 
-**Next Steps:**
-1. Create Blynk account
-2. Create template and device
-3. Copy auth token to config.h
-4. Upload firmware
-5. Configure dashboard widgets
-6. Test all functionality
+**Bước tiếp theo:**
+1. Tạo tài khoản Blynk
+2. Tạo template và thiết bị
+3. Copy auth token vào config.h
+4. Nạp firmware
+5. Cấu hình widget bảng điều khiển
+6. Test toàn bộ chức năng
 
-**More Information:**
-- Blynk Documentation: https://docs.blynk.io/
-- Blynk Community: https://community.blynk.cc/
-- Video Tutorials: https://www.youtube.com/c/BlynkIoT
+**Thông tin thêm:**
+- Tài liệu Blynk: https://docs.blynk.io/
+- Cộng đồng Blynk: https://community.blynk.cc/
+- Video hướng dẫn: https://www.youtube.com/c/BlynkIoT

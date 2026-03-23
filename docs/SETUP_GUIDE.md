@@ -1,264 +1,260 @@
-# Setup & Configuration Guide
+﻿# Hướng Dẫn Thiết Lập & Cấu Hình
 
-Complete step-by-step guide to get your warehouse monitoring system running.
+Hướng dẫn từng bước để chạy hệ thống giám sát kho hàng.
 
-## Phase 1: Hardware Setup
+## Giai Đoạn 1: Thiết Lập Phần Cứng
 
-### 1.1 Wiring Configuration
+### 1.1 Cấu Hình Nối Dây
 
-Based on your schematic diagram:
+Theo sơ đồ schematic của bạn:
 
 ```
-ESP32 Pin    | Component         | Signal Type | Notes
--------------|-------------------|-------------|------------------
-GPIO25       | DHT11             | 1-Wire      | Temp/Humidity
-GPIO35       | MQ2               | Analog in   | Smoke detection
-GPIO36       | Fire Sensor       | Analog in   | Heat detection
-GPIO34       | Button            | Digital in  | Debounced
-GPIO33       | Buzzer            | Digital out | Active high
-GPIO32       | Relay             | Digital out | Light control
-GPIO9        | AS608 RX          | UART1       | 57600 baud
-GPIO10       | AS608 TX          | UART1       | 57600 baud
-GPIO16       | PZEM RX           | UART2       | 9600 baud
-GPIO17       | PZEM TX           | UART2       | 9600 baud
-GND          | All commons       | -           | Shared ground
-5V           | Relay, Buzzer     | Power       | From PSU
-3.3V         | Sensors, AS608    | Power       | ESP32 output
+Chân ESP32   | Thiết Bị          | Loại Tín Hiệu | Ghi Chú
+-------------|-------------------|----------------|------------------
+GPIO32       | DHT11             | 1-Wire         | Nhiệt độ/Độ ẩm
+GPIO25       | MQ2               | Analog ADC     | Phát hiện khói
+GPIO33       | Cảm biến lửa      | Analog ADC     | Phát hiện nhiệt
+GPIO26       | Nút nhấn          | Digital Input  | Có chống rung
+GPIO4        | Còi/Buzzer        | Digital Output | Tích cực mức cao
+GPIO23       | Relay             | Digital Output | Điều khiển đèn
+GPIO16       | AS608 RX          | UART2 (Serial2)| 57600 baud
+GPIO17       | AS608 TX          | UART2 (Serial2)| 57600 baud
+GPIO18       | PZEM TX           | UART1 (Serial1)| 9600 baud
+GPIO19       | PZEM RX           | UART1 (Serial1)| 9600 baud
+GND          | Tất cả chung      | -              | Ground chung
+5V           | Relay, Còi        | Nguồn          | Từ PSU
+3.3V         | Cảm biến, AS608   | Nguồn          | Đầu ra ESP32
 ```
 
-### 1.2 Component Connections
+### 1.2 Kết Nối Từng Linh Kiện
 
-**AS608 Fingerprint Module** (Using Serial1)
+**Module Vân Tay AS608** (Sử dụng Serial2)
 ```
-AS608 Pin   | ESP32 Pin | Notes
-------------|-----------|------------------
-VCC (3.3V)  | 3.3V      | Power supply
-GND         | GND       | Common ground
-RX          | GPIO9     | Serial receive
-TX          | GPIO10    | Serial transmit
-```
-
-**PZEM-004T Power Monitor** (Using Serial2)
-```
-PZEM Pin    | ESP32 Pin | Notes
-------------|-----------|------------------
-VCC (5V)    | 5V        | Power supply
-GND         | GND       | Common ground
-RX          | GPIO16    | Serial receive
-TX          | GPIO17    | Serial transmit
-A/B (CT)    | Light     | Current transformer
-L/N         | AC mains  | Via relay
+Chân AS608   | Chân ESP32 | Ghi Chú
+-------------|-----------|------------------
+VCC (3.3V)   | 3.3V      | Nguồn cấp
+GND          | GND       | Ground chung
+RX           | GPIO17    | Serial truyền (TX2)
+TX           | GPIO16    | Serial nhận (RX2)
 ```
 
-**DHT11** (GPIO25)
+**Module Đo Điện PZEM-004T** (Sử dụng Serial1)
 ```
-Pin 1 (VCC)  → 3.3V
-Pin 2 (DAT)  → GPIO25 + 10kΩ pull-up to 3.3V
-Pin 3 (NULL) → Not used
-Pin 4 (GND)  → GND
+Chân PZEM    | Chân ESP32 | Ghi Chú
+-------------|-----------|------------------
+VCC (5V)     | 5V        | Nguồn cấp
+GND          | GND       | Ground chung
+RX           | GPIO18    | Serial truyền (D18)
+TX           | GPIO19    | Serial nhận (D19)
+A/B (CT)     | Đèn       | Biến dòng
+L/N          | Nguồn AC  | Qua relay
 ```
 
-**MQ2 Smoke Sensor** (GPIO35 ADC)
+**DHT11** (GPIO32)
+```
+Chân 1 (VCC)  → 3.3V
+Chân 2 (DAT)  → GPIO32 + Điện trở pull-up 10kΩ lên 3.3V
+Chân 3 (NULL) → Không sử dụng
+Chân 4 (GND)  → GND
+```
+
+**Cảm Biến Khói MQ2** (GPIO25 ADC)
 ```
 VCC → 5V
 GND → GND
-A0  → GPIO35 (ADC input)
-D0  → (Optional, not used)
+A0  → GPIO25 (Đầu vào ADC)
+D0  → (Tùy chọn, không sử dụng)
 ```
 
-**Fire Sensor** (GPIO36 ADC)
+**Cảm Biến Lửa** (GPIO33 ADC)
 ```
 VCC → 5V
 GND → GND
-AO  → GPIO36 (ADC input)
-DO  → (Optional, not used)
+AO  → GPIO33 (Đầu vào ADC)
+DO  → (Tùy chọn, không sử dụng)
 ```
 
-**Button** (GPIO34)
+**Nút Nhấn** (GPIO26)
 ```
-Button 1 → 3.3V (via 10kΩ pull-up)
-Button 2 → GPIO34
-Button 3 → GND
-Capacitor 100nF between GPIO34 and GND (optional, for noise filtering)
+Nút chân 1 → 3.3V (qua điện trở pull-up 10kΩ)
+Nút chân 2 → GPIO26
+Nút chân 3 → GND
+Tụ 100nF giữa GPIO26 và GND (tùy chọn, lọc nhiễu)
 ```
 
-**Relay Module** (GPIO32)
+**Module Relay** (GPIO23)
 ```
 VCC → 5V
 GND → GND
-IN  → GPIO32 (Active HIGH)
-COM → Main AC Phase
-NO  → Light phase
-NC  → Not used
+IN  → GPIO23 (Tích cực HIGH)
+COM → Pha AC chính
+NO  → Pha đèn
+NC  → Không sử dụng
 ```
 
-**Buzzer** (GPIO33)
+**Còi/Buzzer** (GPIO4)
 ```
-+ (Long leg) → GPIO33
-- (Short leg) → GND
-Optional: Add 1N4007 diode across buzzer for protection
++ (Chân dài) → GPIO4
+- (Chân ngắn) → GND
+Tùy chọn: Thêm diode 1N4007 qua còi để bảo vệ
 ```
 
-### 1.3 Power Supply
+### 1.3 Nguồn Cấp
 
-**Requirements:**
-- ESP32: 3.3V @ 500mA max
-- Relays: 5V @ 100mA
+**Yêu cầu:**
+- ESP32: 3.3V @ 500mA tối đa
+- Relay: 5V @ 100mA
 - PZEM: 5V @ 100mA
-- Light loads: Through relay (AC power)
+- Tải đèn: Qua relay (nguồn AC)
 
-**Recommended PSU:**
-- Main power: 5V/2A AC adapter
+**Nguồn khuyến nghị:**
+- Nguồn chính: Adapter AC 5V/2A
 
-## Phase 2: Software Setup
+## Giai Đoạn 2: Thiết Lập Phần Mềm
 
-### 2.1 Install PlatformIO
+### 2.1 Cài Đặt PlatformIO
 
-1. **Install VS Code**: https://code.visualstudio.com/
-2. **Install PlatformIO Extension**:
-   - Open VS Code
-   - Extensions → Search "PlatformIO"
-   - Install "PlatformIO IDE" by Ivan Kravets
-3. **Reload VS Code**
+1. **Cài VS Code**: https://code.visualstudio.com/
+2. **Cài Extension PlatformIO**:
+   - Mở VS Code
+   - Extensions → Tìm "PlatformIO"
+   - Cài "PlatformIO IDE" của Ivan Kravets
+3. **Khởi động lại VS Code**
 
-### 2.2 Clone/Open Project
+### 2.2 Clone/Mở Dự Án
 
 ```bash
-# Option 1: Clone from git
+# Cách 1: Clone từ git
 git clone <repository-url>
 cd Monitor
 
-# Option 2: Open existing folder
-# File → Open Folder → Select Monitor directory
+# Cách 2: Mở thư mục có sẵn
+# File → Open Folder → Chọn thư mục Monitor
 ```
 
-### 2.3 Verify Configuration Files
+### 2.3 Kiểm Tra File Cấu Hình
 
-Check these files exist:
-- `platformio.ini` - Build configuration
-- `include/config.h` - Pin definitions
-- `src/main.cpp` - Main firmware
-- `README.md` - Documentation
+Kiểm tra các file này tồn tại:
+- `platformio.ini` - Cấu hình biên dịch
+- `include/config.h` - Định nghĩa chân
+- `src/main.cpp` - Firmware chính
+- `README.md` - Tài liệu
 
-## Phase 3: Credentials Configuration
+## Giai Đoạn 3: Cấu Hình Credentials
 
-### 3.1 Edit config.h
+### 3.1 Sửa config.h
 
 ```cpp
 // File: include/config.h
 
-#define WIFI_SSID "YourWiFiName"
-#define WIFI_PASSWORD "YourPassword"
+#define WIFI_SSID "TenWiFiCuaBan"
+#define WIFI_PASSWORD "MatKhauCuaBan"
 
-#define BLYNK_TEMPLATE_ID "YOUR_TEMPLATE_ID"
-#define BLYNK_AUTH_TOKEN "YOUR_AUTH_TOKEN"
+#define BLYNK_TEMPLATE_ID "TEMPLATE_ID_CUA_BAN"
+#define BLYNK_AUTH_TOKEN "AUTH_TOKEN_CUA_BAN"
 
-#define GOOGLE_SCRIPT_ID "YOUR_SCRIPT_ID"
+#define GOOGLE_SCRIPT_ID "SCRIPT_ID_CUA_BAN"
 ```
 
-**Find your credentials:**
+**Tìm credentials ở đâu:**
 
-1. **WiFi SSID/Password**: Your home/office WiFi
-2. **Blynk**: See section 3.2
-3. **Google Script**: See section 3.3
+1. **WiFi SSID/Mật khẩu**: WiFi nhà/văn phòng của bạn
+2. **Blynk**: Xem phần 3.2
+3. **Google Script**: Xem phần 3.3
 
-### 3.2 Setup Blynk
+### 3.2 Thiết Lập Blynk
 
-1. **Create Account**:
-   - Visit https://blynk.cloud/
-   - Sign up with email
+1. **Tạo tài khoản**:
+   - Truy cập https://blynk.cloud/
+   - Đăng ký bằng email
 
-2. **Create Business/IoT Device**:
-   - Organization → "New Organization"
-   - Skip billing (you can use free tier)
-
-3. **Create Template**:
+2. **Tạo Template**:
    - Developer Zone → Templates
-   - Click "Create New Template"
-   - **Template Name**: Warehouse Monitor
-   - **Select Hardware**: ESP32 Dev Board
-   - **Select Connectivity**: WiFi
-   - **Save**
+   - Nhấn "Create New Template"
+   - **Tên**: Warehouse Monitor
+   - **Chọn phần cứng**: ESP32 Dev Board
+   - **Chọn kết nối**: WiFi
+   - **Lưu**
 
-4. **Create Auth Token**:
-   - In template, find "Auth Token"
-   - Copy entire token (includes numbers/letters)
-   - Paste into `config.h` → `BLYNK_AUTH_TOKEN`
+3. **Lấy Auth Token**:
+   - Trong template, tìm "Auth Token"
+   - Copy toàn bộ token
+   - Dán vào `config.h` → `BLYNK_AUTH_TOKEN`
 
-5. **Get Template ID**:
-   - Template settings → Copy "TEMPLATE_ID"
-   - Paste into `config.h` → `BLYNK_TEMPLATE_ID`
+4. **Lấy Template ID**:
+   - Cài đặt template → Copy "TEMPLATE_ID"
+   - Dán vào `config.h` → `BLYNK_TEMPLATE_ID`
 
-6. **Create Device**:
+5. **Tạo Device**:
    - Devices → Create New Device
-   - Select template "Warehouse Monitor"
-   - Name: "Warehouse_ESP32"
-   - **Save**
+   - Chọn template "Warehouse Monitor"
+   - Tên: "Warehouse_ESP32"
+   - **Lưu**
 
-7. **Configure Virtual Pins** (in Blynk app):
-   - V1: Button (Light ON/OFF)
-   - V2: Button (Buzzer test)
-   - V3-V9: Gauges/charts for sensors
-   - V10-V12: LED indicators for alerts
+6. **Cấu hình Virtual Pin** (trong Blynk app):
+   - V1: Nút (Bật/Tắt đèn)
+   - V2: Nút (Test còi)
+   - V3-V9: Đồng hồ/biểu đồ cho cảm biến
+   - V10-V12: Chỉ báo LED cho cảnh báo
 
-### 3.3 Setup Google Sheets
+### 3.3 Thiết Lập Google Sheets
 
-1. **Create Google Apps Script**:
-   - Visit https://script.google.com/
-   - Create new project: "Warehouse Logger"
+1. **Tạo Google Apps Script**:
+   - Truy cập https://script.google.com/
+   - Tạo dự án mới: "Warehouse Logger"
 
-2. **Paste Script Code**:
+2. **Dán Code Script**:
    ```javascript
-   // Script from docs/google_sheets_script.gs
-   // Copy entire content
+   // Script từ docs/google_sheets_script.gs
+   // Copy toàn bộ nội dung
    ```
 
 3. **Deploy Script**:
    - Deploy → New deployment
-   - Type: "Web app"
-   - Execute as: Your account
-   - Who has access: "Anyone"
+   - Loại: "Web app"
+   - Thực thi dưới: Tài khoản của bạn
+   - Ai có quyền truy cập: "Anyone"
    - **Deploy**
    - Copy Script ID
 
-4. **Save to config.h**:
+4. **Lưu vào config.h**:
    ```cpp
-   #define GOOGLE_SCRIPT_ID "YOUR_COPIED_SCRIPT_ID"
+   #define GOOGLE_SCRIPT_ID "SCRIPT_ID_DA_COPY"
    ```
 
-5. **Create Google Sheet**:
-   - Create new sheet in Drive
-   - Name: "Warehouse_Monitor"
-   - Create sheets:
-     - "AccessLog" (columns: ID, Name, Action, Timestamp)
-     - "AlertLog" (columns: Type, Value, Severity, Timestamp)
-     - "DeviceStatus" (columns: Status, Details, Timestamp)
+5. **Tạo Google Sheet**:
+   - Tạo sheet mới trong Drive
+   - Tên: "Warehouse_Monitor"
+   - Tạo các sheet:
+     - "AccessLog" (cột: ID, Tên, Hành động, Thời gian)
+     - "AlertLog" (cột: Loại, Giá trị, Mức nghiêm trọng, Thời gian)
+     - "DeviceStatus" (cột: Trạng thái, Chi tiết, Thời gian)
 
-### 3.4 Test Configuration
+### 3.4 Kiểm Tra Cấu Hình
 
-Edit `include/config.h` sensors thresholds (optional):
+Sửa ngưỡng cảm biến trong `include/config.h` (tùy chọn):
 
 ```cpp
-// Adjust based on your environment
-#define SMOKE_THRESHOLD 400      // Lower = more sensitive
-#define TEMP_THRESHOLD 40        // In Celsius
-#define FIRE_THRESHOLD 500       // Adjust based on sensor testing
-#define HUMIDITY_WARNING 80      // Percent
+// Điều chỉnh theo môi trường của bạn
+#define SMOKE_THRESHOLD 400      // Thấp hơn = nhạy hơn
+#define TEMP_THRESHOLD 40        // Độ Celsius
+#define FIRE_THRESHOLD 500       // Điều chỉnh theo test cảm biến
+#define HUMIDITY_WARNING 80      // Phần trăm
 ```
 
-## Phase 4: Compilation & Upload
+## Giai Đoạn 4: Biên Dịch & Nạp Firmware
 
-### 4.1 Build Firmware
+### 4.1 Biên Dịch Firmware
 
 ```bash
-# In PlatformIO terminal (Ctrl+`)
+# Trong terminal PlatformIO (Ctrl+`)
 pio run
 
-# Or in VS Code:
-# Click PlatformIO icon → Project Tasks → Build
+# Hoặc trong VS Code:
+# Nhấn biểu tượng PlatformIO → Project Tasks → Build
 ```
 
-**Expected output:**
+**Kết quả mong đợi:**
 ```
 Building...
 Linking...
@@ -268,207 +264,207 @@ RAM: ~50KB
 Memory use: 35%
 ```
 
-### 4.2 Connect ESP32
+### 4.2 Kết Nối ESP32
 
-1. Connect ESP32 to computer via USB cable
-2. Check COM port:
-   - Windows: Device Manager → Ports (COM3, COM4, etc)
+1. Kết nối ESP32 với máy tính qua cáp USB
+2. Kiểm tra cổng COM:
+   - Windows: Device Manager → Ports (COM3, COM4, v.v.)
    - Linux: `ls /dev/ttyUSB*`
    - Mac: `ls /dev/tty.usbserial*`
 
-3. Update `platformio.ini` (if needed):
+3. Cập nhật `platformio.ini` (nếu cần):
    ```ini
-   upload_port = COM3  ; Change to your port
+   upload_port = COM3  ; Đổi sang cổng của bạn
    ```
 
-### 4.3 Upload Firmware
+### 4.3 Nạp Firmware
 
 ```bash
 # PlatformIO: Upload
 pio run -t upload
 
-# Monitor output:
-# Should see "Uploading..." then "Done"
+# Theo dõi output:
+# Sẽ thấy "Uploading..." rồi "Done"
 ```
 
-**Troubleshooting upload:**
-- Try USB 2.0 port instead of USB 3.0
-- Reduce upload speed in `platformio.ini`:
+**Xử lý lỗi nạp:**
+- Thử cổng USB 2.0 thay vì USB 3.0
+- Giảm tốc độ nạp trong `platformio.ini`:
   ```ini
   upload_speed = 115200
   ```
-- Install CH340 drivers (ESP32 USB chip: https://sparks.gogo.co.nz/ch340.html)
+- Cài driver CH340 (chip USB ESP32: https://sparks.gogo.co.nz/ch340.html)
 
-### 4.4 Monitor Serial Output
+### 4.4 Theo Dõi Serial Output
 
 ```bash
-# Watch serial output
+# Xem serial output
 pio device monitor --baud 115200
 
-# Look for:
-# - WiFi connection status
-# - Sensor initialization
-# - Temperature/humidity values
-# - Fingerprint status
-# - Power monitor readings
+# Tìm các thông tin:
+# - Trạng thái kết nối WiFi
+# - Khởi tạo cảm biến
+# - Giá trị nhiệt độ/độ ẩm
+# - Trạng thái vân tay
+# - Số liệu đo điện
 ```
 
-Press Ctrl+C to exit monitor.
+Nhấn Ctrl+C để thoát.
 
-## Phase 5: System Testing
+## Giai Đoạn 5: Kiểm Tra Hệ Thống
 
-### 5.1 Hardware Tests
+### 5.1 Kiểm Tra Phần Cứng
 
-**DHT11 Sensor**:
+**Cảm biến DHT11**:
 ```
-Serial output shows:
+Serial output hiển thị:
 "Temperature: 25.5°C | Humidity: 60%"
 ```
 
-**MQ2/Fire Sensor**:
+**Cảm biến MQ2/Lửa**:
 ```
-Serial shows analog values
-- Clean air: ~100-200
-- Smoke: >400
+Serial hiển thị giá trị analog
+- Không khí sạch: ~100-200
+- Khói: >400
 ```
 
-**AS608 Fingerprint**:
+**Vân tay AS608**:
 ```
-Serial shows:
+Serial hiển thị:
 "Fingerprint module ready"
-Place finger for enrollment
+Đặt ngón tay để đăng ký
 ```
 
-**PZEM Power Monitor**:
+**Đo điện PZEM**:
 ```
-Serial shows:
+Serial hiển thị:
 "Voltage: 230V | Current: 0.5A | Power: 115W"
 ```
 
-**Button Test**:
+**Test nút nhấn**:
 ```
-Press physical button → Light toggles
-Press button 5 times
-Check Blynk app updates
-```
-
-**Relay/Light**:
-```
-GPIO32 controls relay
-Relay clicks when toggled
-Light turns on/off
+Nhấn nút vật lý → Đèn bật/tắt
+Nhấn 5 lần
+Kiểm tra Blynk app cập nhật
 ```
 
-### 5.2 Blynk App Tests
+**Relay/Đèn**:
+```
+GPIO23 điều khiển relay
+Relay click khi bật/tắt
+Đèn bật/tắt
+```
 
-1. Open Blynk app
-2. Select "Warehouse_ESP32" device
-3. Check widgets:
-   - Temperature gauge shows reading
-   - Button toggles light
-   - Sliders update
-   - Events log shows activity
+### 5.2 Kiểm Tra Blynk App
 
-### 5.3 Google Sheets Tests
+1. Mở Blynk app
+2. Chọn device "Warehouse_ESP32"
+3. Kiểm tra widget:
+   - Đồng hồ nhiệt độ hiển thị giá trị
+   - Nút bật/tắt đèn
+   - Slider cập nhật
+   - Log sự kiện hiển thị hoạt động
 
-1. Open Google Sheet "Warehouse_Monitor"
-2. Test by pressing button or simulating alert
-3. Check sheet updates within 5 seconds
-4. Verify timestamp and action recorded
+### 5.3 Kiểm Tra Google Sheets
 
-## Phase 6: Fingerprint Enrollment
+1. Mở Google Sheet "Warehouse_Monitor"
+2. Test bằng cách nhấn nút hoặc mô phỏng cảnh báo
+3. Kiểm tra sheet cập nhật trong vòng 5 giây
+4. Xác nhận timestamp và hành động được ghi nhận
 
-### 6.1 Enroll First Fingerprint
+## Giai Đoạn 6: Đăng Ký Vân Tay
 
-1. **Send enrollment command** via serial:
+### 6.1 Đăng Ký Vân Tay Đầu Tiên
+
+1. **Gửi lệnh đăng ký** qua serial:
    ```
-   Serial command: ENROLL:001
-   (Or implement via button combination)
+   Lệnh Serial: ENROLL:001
+   (Hoặc triển khai qua tổ hợp nút nhấn)
    ```
 
-2. **Follow prompts**:
-   - Place finger on sensor
-   - Wait for beep
-   - Lift finger
-   - Repeat 3 times
-   - Confirm enrollment
+2. **Làm theo hướng dẫn**:
+   - Đặt ngón tay lên cảm biến
+   - Chờ tiếng bíp
+   - Nhấc ngón tay
+   - Lặp lại 3 lần
+   - Xác nhận đăng ký
 
-3. **Verify enrollment** with VERIFY command:
-   - Place same finger
-   - Should see "Match ID: 001"
+3. **Xác minh đăng ký** bằng lệnh VERIFY:
+   - Đặt cùng ngón tay
+   - Phải thấy "Match ID: 001"
 
-### 6.2 Enroll Additional Users
+### 6.2 Đăng Ký Thêm Người Dùng
 
-- Repeat process for ID 002, 003, etc.
-- Maximum 10 fingerprints (configurable)
-- Store employee details in Google Sheet
+- Lặp lại quy trình cho ID 002, 003, v.v.
+- Tối đa 81 vân tay (có thể cấu hình)
+- Lưu thông tin nhân viên vào Google Sheet
 
-## Phase 7: Production Deployment
+## Giai Đoạn 7: Triển Khai Production
 
-### 7.1 Final Configuration
+### 7.1 Cấu Hình Cuối Cùng
 
-1. **Voltage levels**:
-   - Verify 3.3V to sensors
-   - Verify 5V to relay/buzzer
-   - Check ground connections
+1. **Mức điện áp**:
+   - Xác nhận 3.3V cho cảm biến
+   - Xác nhận 5V cho relay/còi
+   - Kiểm tra kết nối ground
 
-2. **Thermal management**:
-   - Add heat sink if needed
-   - Ensure ventilation
-   - Monitor temperature
+2. **Quản lý nhiệt**:
+   - Thêm tản nhiệt nếu cần
+   - Đảm bảo thông gió
+   - Giám sát nhiệt độ
 
-3. **Backup power**:
-   - Consider UPS for critical logging
-   - EEPROM backup for important data
+3. **Nguồn dự phòng**:
+   - Cân nhắc UPS cho ghi log quan trọng
+   - Sao lưu EEPROM cho dữ liệu quan trọng
 
-### 7.2 Monitoring & Maintenance
+### 7.2 Giám Sát & Bảo Trì
 
 ```
-Daily checks:
-- Serial monitor for errors
-- Blynk app responsiveness
-- Google Sheets logging
+Kiểm tra hàng ngày:
+- Serial monitor xem lỗi
+- Blynk app phản hồi
+- Google Sheets ghi log
 
-Weekly:
-- Check sensor readings
-- Verify power consumption baseline
-- Test alert system
+Hàng tuần:
+- Kiểm tra số liệu cảm biến
+- Xác nhận mức tiêu thụ điện cơ bản
+- Test hệ thống cảnh báo
 
-Monthly:
-- Clean fingerprint sensor
-- Verify all data logged correctly
-- Update credentials if changed
+Hàng tháng:
+- Lau cảm biến vân tay
+- Xác nhận tất cả dữ liệu ghi log chính xác
+- Cập nhật credentials nếu thay đổi
 ```
 
-## Troubleshooting Quick Reference
+## Tham Chiếu Xử Lý Sự Cố Nhanh
 
-| Issue | Solution |
-|-------|----------|
-| **WiFi won't connect** | Check SSID/password in config.h |
-| **Sensors not reading** | Verify pin definitions in config.h |
-| **Blynk not syncing** | Check internet, restart app |
-| **Fingerprint failing** | Clean sensor lens, re-enroll |
-| **PZEM no data** | Check baud rate (9600), verify RX/TX |
-| **Relay clicks but light off** | Check relay wiring to AC circuit |
-| **Serial garbage output** | Verify baud rate 115200 |
-| **Memory full error** | Reduce FINGERPRINT_MAX to 5 |
+| Vấn Đề | Giải Pháp |
+|---------|-----------|
+| **WiFi không kết nối** | Kiểm tra SSID/mật khẩu trong config.h |
+| **Cảm biến không đọc được** | Kiểm tra định nghĩa chân trong config.h |
+| **Blynk không đồng bộ** | Kiểm tra internet, khởi động lại app |
+| **Vân tay thất bại** | Lau ống kính cảm biến, đăng ký lại |
+| **PZEM không có dữ liệu** | Kiểm tra baud rate (9600), xác nhận RX/TX |
+| **Relay click nhưng đèn tắt** | Kiểm tra nối dây relay với mạch AC |
+| **Serial output lỗi ký tự** | Xác nhận baud rate 115200 |
+| **Lỗi bộ nhớ đầy** | Giảm FINGERPRINT_MAX xuống 5 |
 
-## Next Steps
+## Bước Tiếp Theo
 
-1. ✅ Complete hardware wiring
-2. ✅ Install PlatformIO IDE
-3. ✅ Configure credentials
-4. ✅ Build and upload firmware
-5. ✅ Test all sensors
-6. ✅ Enroll fingerprints
-7. ✅ Monitor production system
-8. 📝 Customize thresholds for your environment
-9. 📝 Add additional sensors/features as needed
+1. ✅ Hoàn thành nối dây phần cứng
+2. ✅ Cài PlatformIO IDE
+3. ✅ Cấu hình credentials
+4. ✅ Biên dịch và nạp firmware
+5. ✅ Test tất cả cảm biến
+6. ✅ Đăng ký vân tay
+7. ✅ Giám sát hệ thống production
+8. 📝 Tùy chỉnh ngưỡng cho môi trường của bạn
+9. 📝 Thêm cảm biến/tính năng bổ sung khi cần
 
 ---
 
-**Still stuck?** Check:
-- Serial monitor output for error messages
-- `platformio.ini` build flags
-- Blynk device online status (blue dot)
-- Google Script deployment status
+**Vẫn gặp khó khăn?** Kiểm tra:
+- Serial monitor output để xem thông báo lỗi
+- Build flags trong `platformio.ini`
+- Trạng thái online thiết bị Blynk (dấu chấm xanh)
+- Trạng thái deployment Google Script

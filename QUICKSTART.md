@@ -1,131 +1,130 @@
-# 🚀 START HERE - Quick Start Guide
+﻿# 🚀 BẮT ĐẦU TỪ ĐÂY - Hướng Dẫn Khởi Động Nhanh
 
-Welcome to your Warehouse Monitoring System! This document will get you started in the next 30 minutes.
+Chào mừng bạn đến với Hệ Thống Giám Sát Kho Hàng! Tài liệu này sẽ giúp bạn khởi động trong 30 phút.
 
-## ⚠️ IntelliSense Errors Are Normal
+## ⚠️ Lỗi IntelliSense Là Bình Thường
 
-You may see red squiggly lines in VS Code about missing includes like:
+Bạn có thể thấy gạch đỏ trong VS Code về thiếu include như:
 - `#include <BlynkSimpleEsp32.h>`
 - `#include <DHT.h>`
 
-**This is OK!** IntelliSense hasn't downloaded the libraries yet. PlatformIO will automatically install them when you compile.
+**Điều này bình thường!** IntelliSense chưa tải thư viện. PlatformIO sẽ tự động cài đặt khi bạn biên dịch.
 
 ---
 
-## Step 1: Configure Credentials (5 minutes)
+## Bước 1: Cấu Hình Thông Tin Xác Thực (5 phút)
 
-### Edit config.h with Your Information
+### Sửa config.h với thông tin của bạn
 
-Open file: `include/config.h`
+Mở file: `include/config.h`
 
-Replace these 3 lines with YOUR actual values:
+Thay thế các dòng sau bằng giá trị THỰC của bạn:
 
 ```cpp
-#define WIFI_SSID "YOUR_SSID"
-#define WIFI_PASSWORD "YOUR_PASSWORD"
-#define BLYNK_TEMPLATE_ID "YOUR_TEMPLATE_ID"
-#define BLYNK_AUTH_TOKEN "YOUR_AUTH_TOKEN"
-#define GOOGLE_SCRIPT_ID "YOUR_GOOGLE_SCRIPT_ID"
+#define WIFI_SSID "TEN_WIFI_CUA_BAN"
+#define WIFI_PASSWORD "MAT_KHAU_CUA_BAN"
+#define BLYNK_TEMPLATE_ID "TEMPLATE_ID_CUA_BAN"
+#define BLYNK_AUTH_TOKEN "AUTH_TOKEN_CUA_BAN"
+#define GOOGLE_SCRIPT_ID "GOOGLE_SCRIPT_ID_CUA_BAN"
 ```
 
-### Where to Get These Values
+### Lấy các giá trị này ở đâu
 
-**WiFi SSID/Password:**
-- Your home/office WiFi network name and password
+**WiFi SSID/Mật khẩu:**
+- Tên mạng WiFi và mật khẩu nhà/văn phòng của bạn
 
 **Blynk Token & Template ID:**
-- 📖 See detailed guide: [docs/GET_CREDENTIALS.md](docs/GET_CREDENTIALS.md) (English)
-- 📖 Hướng dẫn tiếng Việt: [docs/GET_CREDENTIALS.md](docs/GET_CREDENTIALS.md) (Vietnamese)
+- 📖 Xem hướng dẫn chi tiết: [docs/GET_CREDENTIALS.md](docs/GET_CREDENTIALS.md)
 
 **Google Script ID:**
-- 📖 Full instructions in the same credential guide above
+- 📖 Hướng dẫn đầy đủ trong cùng file hướng dẫn credentials ở trên
 
-### 🔗 Quick Links for Getting Credentials
+### 🔗 Liên kết nhanh để lấy Credentials
 
-1. **Create Blynk Account** → https://blynk.cloud/ → Sign Up
-2. **Create Google Apps Script** → https://script.google.com/ → New Project
-3. **Read Full Guide** → See [docs/GET_CREDENTIALS.md](docs/GET_CREDENTIALS.md)
+1. **Tạo tài khoản Blynk** → https://blynk.cloud/ → Đăng ký
+2. **Tạo Google Apps Script** → https://script.google.com/ → Dự án mới
+3. **Đọc hướng dẫn đầy đủ** → Xem [docs/GET_CREDENTIALS.md](docs/GET_CREDENTIALS.md)
 
 ---
 
-## Step 2: Connect Hardware (10 minutes)
+## Bước 2: Kết Nối Phần Cứng (10 phút)
 
-### Updated Pin Mapping (According to Your Schematic)
+### Sơ Đồ Chân Cập Nhật (Theo sơ đồ schematic của bạn)
 
 ```
-ESP32 Pin  →  Component            Description
+Chân ESP32   →  Thiết Bị             Mô Tả
 ────────────────────────────────────────────────────
-GPIO32     →  DHT11               Temperature/Humidity (D32)
-GPIO25     →  MQ2 Sensor          Smoke detection (D25)
-GPIO33     →  Fire Sensor         Heat detection (D33)
-GPIO26     →  Button              Physical switch (D26)
-GPIO23     →  Relay               Light control (D23)
-GPIO4      →  Buzzer              Alert sound (D4)
+GPIO32       →  DHT11               Nhiệt độ/Độ ẩm (D32)
+GPIO25       →  Cảm biến MQ2        Phát hiện khói (D25)
+GPIO33       →  Cảm biến lửa        Phát hiện nhiệt (D33)
+GPIO26       →  Nút nhấn            Công tắc vật lý (D26)
+GPIO23       →  Relay               Điều khiển đèn (D23)
+GPIO4        →  Còi/Buzzer          Âm cảnh báo (D4)
 
-UART Serial Connections:
-GPIO18     →  PZEM TX             Power monitor (D18 on Serial1)
-GPIO19     →  PZEM RX             Power monitor (D19 on Serial1)
-GPIO17     →  AS608 TX            Fingerprint (TX2 on Serial2)
-GPIO16     →  AS608 RX            Fingerprint (RX2 on Serial2)
+Kết nối UART Serial:
+GPIO18       →  PZEM TX             Module đo điện (D18 trên Serial1)
+GPIO19       →  PZEM RX             Module đo điện (D19 trên Serial1)
+GPIO17       →  AS608 TX            Vân tay (TX2 trên Serial2)
+GPIO16       →  AS608 RX            Vân tay (RX2 trên Serial2)
 
-Power Connections:
-3.3V       →  DHT11 VCC, AS608 VCC
-5V         →  PZEM VCC, MQ2 VCC, Fire Sensor VCC, Relay VCC
-GND        →  All Ground pins
+Kết nối nguồn:
+3.3V         →  DHT11 VCC, AS608 VCC
+5V           →  PZEM VCC, MQ2 VCC, Cảm biến lửa VCC, Relay VCC
+GND          →  Tất cả chân Ground
 ```
 
-**📋 Full Pin Diagram:**
-See detailed diagrams in: [docs/PIN_MAPPING_VI.md](docs/PIN_MAPPING_VI.md)
+**📋 Sơ đồ chân đầy đủ:**
+Xem sơ đồ chi tiết tại: [docs/PIN_MAPPING_VI.md](docs/PIN_MAPPING_VI.md)
 
-**✅ Check these before proceeding:**
-- [ ] All ground connections (GND) are soldered
-- [ ] 3.3V and 5V are not mixed up
-- [ ] UART wires are crossed (TX→RX, RX→TX)
-- [ ] Relay NO goes to light, COM to phase
+**✅ Kiểm tra trước khi tiếp tục:**
+- [ ] Tất cả kết nối ground (GND) đã được hàn
+- [ ] 3.3V và 5V không bị lộn
+- [ ] Dây UART được nối chéo (TX→RX, RX→TX)
+- [ ] Relay NO nối tới đèn, COM nối tới pha
 
 ---
 
-## Step 3: Upload Firmware (10 minutes)
+## Bước 3: Nạp Firmware (10 phút)
 
-### In VS Code:
+### Trong VS Code:
 
-1. **Open Terminal**: Press `Ctrl+`` (backtick)
+1. **Mở Terminal**: Nhấn `Ctrl+`` (dấu huyền)
 
-2. **Compile Firmware**:
+2. **Biên dịch Firmware**:
 ```bash
 pio run
 ```
 
-Wait for completion. You should see:
+Chờ hoàn thành. Bạn sẽ thấy:
 ```
 Building...
 ✓ Project Compiled Successfully
 ```
 
-3. **Connect ESP32** to computer via USB cable
+3. **Kết nối ESP32** với máy tính qua cáp USB
 
-4. **Upload**:
+4. **Nạp firmware**:
 ```bash
 pio run -t upload
 ```
 
-You should see:
+Bạn sẽ thấy:
 ```
 Uploading...
 Hard resetting via RTS pin...
 ✓ Upload Complete
 ```
 
-5. **Monitor Serial Output**:
+5. **Theo dõi Serial Output**:
 ```bash
 pio device monitor --baud 115200
 ```
 
-You'll see boot messages:
+Bạn sẽ thấy thông báo khởi động:
 
 ```
 ========== WAREHOUSE MONITOR STARTING ==========
-[WiFi] Connecting to YOUR_SSID...
+[WiFi] Connecting to TEN_WIFI...
 [WiFi] Connected! IP: 192.168.1.100
 [DHT] DHT11 initialized
 [PZEM] PZEM-004T initialized
@@ -135,251 +134,249 @@ Setup complete!
 
 ---
 
-## Step 4: Configure Blynk App (5 minutes)
+## Bước 4: Cấu Hình Blynk App (5 phút)
 
-### On Your Phone:
+### Trên điện thoại:
 
-1. **Download Blynk App**
+1. **Tải Blynk App**
    - iOS: App Store
    - Android: Google Play
 
-2. **Log In** with email you used at blynk.cloud
+2. **Đăng nhập** với email đã dùng tại blynk.cloud
 
-3. **Select Your Device**
-   - Should show "Warehouse_ESP32_Main"
-   - Status should be "Online" (blue dot)
+3. **Chọn thiết bị**
+   - Sẽ hiển thị "Warehouse_ESP32_Main"
+   - Trạng thái phải là "Online" (dấu chấm xanh)
 
-4. **Create Dashboard**
-   - Click "+" button
-   - Add widgets:
-     - Button for V1 (Light control)
-     - Gauge for V3 (Temperature)
-     - Gauge for V4 (Humidity)
-     - Chart for V6 (Power)
-     - LED for V10 (Fire alert)
+4. **Tạo bảng điều khiển**
+   - Nhấn nút "+"
+   - Thêm widget:
+     - Nút cho V1 (Điều khiển đèn)
+     - Đồng hồ cho V3 (Nhiệt độ)
+     - Đồng hồ cho V4 (Độ ẩm)
+     - Biểu đồ cho V6 (Công suất)
+     - LED cho V10 (Cảnh báo cháy)
 
-📱 See [docs/BLYNK_SETUP.md](docs/BLYNK_SETUP.md) for detailed widget setup
+📱 Xem [docs/BLYNK_SETUP.md](docs/BLYNK_SETUP.md) để cấu hình widget chi tiết
 
 ---
 
-## Step 5: Test Everything (5 minutes)
+## Bước 5: Kiểm Tra Toàn Bộ (5 phút)
 
-### Quick Test Sequence:
+### Trình tự kiểm tra nhanh:
 
-**1. Check Temperature Reading**
+**1. Kiểm tra đọc nhiệt độ**
 ```
 Serial Monitor → "Temperature: 23.5°C | Humidity: 55%"
-Blynk App      → Gauge shows ~23.5°C
+Blynk App      → Đồng hồ hiển thị ~23.5°C
 ```
 
-**2. Test Button Press**
+**2. Kiểm tra nút nhấn**
 ```
-Push Button    → Relay clicks
-Light Turns    → ON (verify physically)
-Blynk App      → V1 switch shows ON
-```
-
-**3. Test Smoke Sensor**
-```
-Wave hand over MQ2 sensor
-Serial shows   → "Smoke Level: 600"
-Should trigger → Alert if > 400
+Nhấn nút       → Relay click
+Đèn            → BẬT (xác nhận trực tiếp)
+Blynk App      → Công tắc V1 hiển thị BẬT
 ```
 
-**4. Check Google Sheets**
+**3. Kiểm tra cảm biến khói**
 ```
-Press button or trigger alert
-Open Google Sheet "Warehouse_Monitor"
-AccessLog tab should show new entry
+Vẫy tay qua cảm biến MQ2
+Serial hiển thị → "Smoke Level: 600"
+Phải kích hoạt  → Cảnh báo nếu > 400
+```
+
+**4. Kiểm tra Google Sheets**
+```
+Nhấn nút hoặc kích hoạt cảnh báo
+Mở Google Sheet "Warehouse_Monitor"
+Tab AccessLog phải có dòng mới
 ```
 
 ---
 
-## 🎯 What You've Just Built
+## 🎯 Những Gì Bạn Vừa Xây Dựng
 
 ```
 ┌─────────────────────────────────────────┐
-│      WAREHOUSE MONITORING SYSTEM         │
+│      HỆ THỐNG GIÁM SÁT KHO HÀNG       │
 ├─────────────────────────────────────────┤
 │                                         │
-│  📱 Blynk Mobile App (Live Dashboard)   │
-│      ├─ Light ON/OFF control           │
-│      ├─ Temperature graph               │
-│      ├─ Power consumption chart         │
-│      └─ Fire/Smoke alerts              │
+│  📱 Blynk App (Bảng điều khiển)        │
+│      ├─ Điều khiển bật/tắt đèn        │
+│      ├─ Biểu đồ nhiệt độ              │
+│      ├─ Biểu đồ tiêu thụ điện         │
+│      └─ Cảnh báo cháy/khói            │
 │                                         │
-│  🌩️ WiFi Cloud Connectivity             │
-│      ├─ Real-time syncing              │
-│      ├─ Push notifications             │
-│      └─ Global access                  │
+│  🌩️ Kết nối WiFi Cloud                 │
+│      ├─ Đồng bộ thời gian thực        │
+│      ├─ Thông báo đẩy                  │
+│      └─ Truy cập toàn cầu             │
 │                                         │
-│  📊 Google Sheets Logging               │
-│      ├─ Access log (employee tracking) │
-│      ├─ Alert history                  │
-│      └─ Device status                  │
+│  📊 Ghi log Google Sheets              │
+│      ├─ Nhật ký truy cập (nhân viên)   │
+│      ├─ Lịch sử cảnh báo              │
+│      └─ Trạng thái thiết bị           │
 │                                         │
-│  🔐 Fingerprint Access Control          │
-│      ├─ AS608 sensor (GPIO9/10)        │
-│      ├─ 81 employee capacity            │
-│      └─ Automatic timestamping         │
+│  🔐 Kiểm soát truy cập vân tay        │
+│      ├─ Cảm biến AS608 (GPIO16/17)     │
+│      ├─ Dung lượng 81 nhân viên        │
+│      └─ Ghi nhận thời gian tự động     │
 │                                         │
-│  ⚡ Power Monitoring                     │
-│      ├─ PZEM-004T (GPIO16/17)          │
-│      ├─ Real-time kWh tracking         │
-│      └─ Cost calculations              │
+│  ⚡ Giám sát điện năng                  │
+│      ├─ PZEM-004T (GPIO18/19)          │
+│      ├─ Theo dõi kWh thời gian thực    │
+│      └─ Tính chi phí điện              │
 │                                         │
-│  🌡️ Environmental Sensors               │
-│      ├─ DHT11: Temp/Humidity           │
-│      ├─ MQ2: Smoke detection           │
-│      └─ Fire sensor: Heat alert        │
+│  🌡️ Cảm biến môi trường                │
+│      ├─ DHT11: Nhiệt độ/Độ ẩm         │
+│      ├─ MQ2: Phát hiện khói            │
+│      └─ Cảm biến lửa: Cảnh báo nhiệt  │
 │                                         │
 └─────────────────────────────────────────┘
 ```
 
 ---
 
-## 📚 Next Steps & Resources
+## 📚 Bước Tiếp Theo & Tài Liệu
 
-### Immediate Priorities
-1. [ ] Finish hardware wiring
-2. [ ] Successfully upload firmware
-3. [ ] Verify serial monitor shows good output
-4. [ ] Test light toggle
-5. [ ] Confirm Blynk shows temperature
+### Ưu tiên ngay
+1. [ ] Hoàn thành nối dây phần cứng
+2. [ ] Nạp firmware thành công
+3. [ ] Xác nhận serial monitor hiển thị tốt
+4. [ ] Test bật/tắt đèn
+5. [ ] Xác nhận Blynk hiển thị nhiệt độ
 
-### Then Configure
-1. [ ] Enroll first fingerprint employee
-2. [ ] Verify Google Sheets logging
-3. [ ] Calibrate sensor thresholds
-4. [ ] Set up employee database
+### Sau đó cấu hình
+1. [ ] Đăng ký vân tay nhân viên đầu tiên
+2. [ ] Xác nhận Google Sheets ghi log
+3. [ ] Hiệu chuẩn ngưỡng cảm biến
+4. [ ] Thiết lập cơ sở dữ liệu nhân viên
 
-### Reference Guides
-- Full Setup: [docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md)
-- Blynk App: [docs/BLYNK_SETUP.md](docs/BLYNK_SETUP.md)
-- Fingerprint: [docs/AS608_GUIDE.md](docs/AS608_GUIDE.md)
-- Power Monitor: [docs/PZEM_GUIDE.md](docs/PZEM_GUIDE.md)
-- Cloud Script: [docs/google_sheets_script.gs](docs/google_sheets_script.gs)
-
----
-
-## ❌ Troubleshooting Quick Fixes
-
-### "Cannot upload firmware"
-**Solution**: 
-1. Try different USB port
-2. Install CH340 drivers: https://sparks.gogo.co.nz/ch340.html
-3. Check Device Manager for ESP32 COM port
-
-### "WiFi won't connect"
-**Solution**:
-1. Check SSID/password in config.h (case sensitive!)
-2. Verify WiFi is 2.4GHz (some networks are 5GHz only)
-3. Check router allows this device
-
-### "Temperature shows 0 or wrong value"
-**Solution**:
-1. Check DHT11 wiring (GPIO25)
-2. Verify 10kΩ pull-up resistor on data line
-3. Make sure sensor has 3.3V power
-
-### "Blynk device shows Offline"
-**Solution**:
-1. Verify auth token in config.h matches Blynk app
-2. Check WiFi connection in serial monitor
-3. Restart Blynk app
-
-### "Google Sheets not logging"
-**Solution**:
-1. Verify script is deployed (not just saved)
-2. Check webhook URL has right script ID
-3. Try test function in Google Script editor
+### Tài liệu tham khảo
+- Thiết lập đầy đủ: [docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md)
+- Ứng dụng Blynk: [docs/BLYNK_SETUP.md](docs/BLYNK_SETUP.md)
+- Vân tay: [docs/AS608_GUIDE.md](docs/AS608_GUIDE.md)
+- Giám sát điện: [docs/PZEM_GUIDE.md](docs/PZEM_GUIDE.md)
+- Script Cloud: [docs/google_sheets_script.gs](docs/google_sheets_script.gs)
 
 ---
 
-## 🔐 Security Reminder
+## ❌ Xử Lý Sự Cố Nhanh
 
-Before any public deployment:
-1. ⚠️ Change PZEM default slave ID (currently 0xF8)
-2. ⚠️ Use strong WiFi password
-3. ⚠️ Don't share auth tokens
-4. ⚠️ Backup Google Sheets regularly
-5. ⚠️ Monitor access logs for unauthorized use
+### "Không nạp được firmware"
+**Giải pháp**: 
+1. Thử cổng USB khác
+2. Cài driver CH340: https://sparks.gogo.co.nz/ch340.html
+3. Kiểm tra Device Manager tìm cổng COM ESP32
+
+### "WiFi không kết nối được"
+**Giải pháp**:
+1. Kiểm tra SSID/mật khẩu trong config.h (phân biệt hoa thường!)
+2. Xác nhận WiFi là 2.4GHz (một số mạng chỉ 5GHz)
+3. Kiểm tra router cho phép thiết bị này
+
+### "Nhiệt độ hiển thị 0 hoặc sai"
+**Giải pháp**:
+1. Kiểm tra nối dây DHT11 (GPIO32)
+2. Xác nhận có điện trở pull-up 10kΩ trên chân data
+3. Đảm bảo cảm biến có nguồn 3.3V
+
+### "Thiết bị Blynk hiển thị Offline"
+**Giải pháp**:
+1. Kiểm tra auth token trong config.h khớp với Blynk app
+2. Kiểm tra kết nối WiFi trong serial monitor
+3. Khởi động lại Blynk app
+
+### "Google Sheets không ghi log"
+**Giải pháp**:
+1. Kiểm tra script đã Deploy (không chỉ Save)
+2. Kiểm tra webhook URL có đúng Script ID
+3. Thử chạy hàm test trong Google Script editor
 
 ---
 
-## 💡 Pro Tips
+## 🔐 Lưu Ý Bảo Mật
 
-**Tip 1: Monitor Serial Output**
+Trước khi triển khai:
+1. ⚠️ Đổi slave ID mặc định PZEM (hiện tại 0xF8)
+2. ⚠️ Sử dụng mật khẩu WiFi mạnh
+3. ⚠️ Không chia sẻ auth token
+4. ⚠️ Sao lưu Google Sheets thường xuyên
+5. ⚠️ Giám sát log truy cập phát hiện sử dụng trái phép
+
+---
+
+## 💡 Mẹo Hay
+
+**Mẹo 1: Theo dõi Serial Output**
 ```bash
-# Watch live sensor readings while testing
+# Xem số liệu cảm biến trực tiếp khi test
 pio device monitor --baud 115200
 ```
 
-**Tip 2: Test Sensors Individually**
-- Only enroll one fingerprint first
-- Use known load for power testing
-- Place hand near sensors to test
+**Mẹo 2: Test cảm biến từng cái**
+- Chỉ đăng ký một vân tay trước
+- Dùng tải đã biết để test công suất
+- Đưa tay gần cảm biến để thử nghiệm
 
-**Tip 3: Adjust Thresholds**
-Edit in `include/config.h`:
+**Mẹo 3: Điều chỉnh ngưỡng**
+Sửa trong `include/config.h`:
 ```cpp
-#define SMOKE_THRESHOLD 400    // Lower = more sensitive
-#define TEMP_THRESHOLD 40      // Adjust to your environment
+#define SMOKE_THRESHOLD 400    // Thấp hơn = nhạy hơn
+#define TEMP_THRESHOLD 40      // Điều chỉnh theo môi trường
 ```
 
-**Tip 4: Use Blynk Web Console**
-Too busy for mobile? Monitor at:
-https://blynk.cloud/ (same device, different interface)
+**Mẹo 4: Dùng Blynk Web Console**
+Bận không có điện thoại? Giám sát tại:
+https://blynk.cloud/ (cùng thiết bị, giao diện khác)
 
 ---
 
-## ✅ Success Checklist
+## ✅ Checklist Thành Công
 
-You've succeeded when:
-- ✅ Firmware compiles without errors
-- ✅ Serial monitor shows initialization messages
-- ✅ Blynk device appears "Online"
-- ✅ Button press toggles light
-- ✅ Temperature appears in Blynk app
-- ✅ Pressing button logs to Google Sheets
-- ✅ Fingerprint enrollment works
-
----
-
-## 🎉 Congratulations!
-
-You've successfully built a professional-grade IoT warehouse monitoring system with:
-
-✓ **Access Control** - Fingerprint-based employee tracking  
-✓ **Cloud Monitoring** - Real-time dashboards  
-✓ **Power Analytics** - Detailed energy consumption  
-✓ **Environmental Alerts** - Fire, smoke, temperature  
-✓ **Data Logging** - Automatic Google Sheets records  
-✓ **Mobile Control** - Blynk app integration  
+Bạn đã thành công khi:
+- ✅ Firmware biên dịch không lỗi
+- ✅ Serial monitor hiển thị thông báo khởi tạo
+- ✅ Thiết bị Blynk hiển thị "Online"
+- ✅ Nhấn nút bật/tắt đèn thành công
+- ✅ Nhiệt độ hiển thị trong Blynk app
+- ✅ Nhấn nút ghi log vào Google Sheets
+- ✅ Đăng ký vân tay hoạt động
 
 ---
 
-## 📞 Need More Help?
+## 🎉 Chúc Mừng!
 
-**Problem** | **See**
+Bạn đã xây dựng thành công hệ thống giám sát kho hàng IoT chuyên nghiệp với:
+
+✓ **Kiểm soát truy cập** - Theo dõi nhân viên bằng vân tay  
+✓ **Giám sát Cloud** - Bảng điều khiển thời gian thực  
+✓ **Phân tích điện năng** - Chi tiết tiêu thụ năng lượng  
+✓ **Cảnh báo môi trường** - Cháy, khói, nhiệt độ  
+✓ **Ghi log dữ liệu** - Tự động ghi vào Google Sheets  
+✓ **Điều khiển di động** - Tích hợp Blynk app  
+
+---
+
+## 📞 Cần Thêm Trợ Giúp?
+
+**Vấn đề** | **Xem**
 -----------|--------
-Setup issues | [SETUP_GUIDE.md](docs/SETUP_GUIDE.md)
-Blynk not working | [BLYNK_SETUP.md](docs/BLYNK_SETUP.md)
-Fingerprint errors | [AS608_GUIDE.md](docs/AS608_GUIDE.md)
-Power monitor issues | [PZEM_GUIDE.md](docs/PZEM_GUIDE.md)
-Overall overview | [IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)
+Lỗi thiết lập | [SETUP_GUIDE.md](docs/SETUP_GUIDE.md)
+Blynk không hoạt động | [BLYNK_SETUP.md](docs/BLYNK_SETUP.md)
+Lỗi vân tay | [AS608_GUIDE.md](docs/AS608_GUIDE.md)
+Lỗi đo điện | [PZEM_GUIDE.md](docs/PZEM_GUIDE.md)
+Tổng quan | [IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)
 
 ---
 
-**Ready to Begin?** 
+**Sẵn sàng bắt đầu?** 
 
-👉 Start with config.h and follow Step 1 above.
+👉 Bắt đầu với config.h và làm theo Bước 1 ở trên.
 
-Happy building! 🚀
+Chúc xây dựng thành công! 🚀
 
 ---
 
-**Questions?** Every guide has a troubleshooting section. Check docs/ folder for specialized guides.
-
-**Last Updated**: March 2026  
-**Status**: Ready for Deployment ✅
+**Cập nhật lần cuối**: Tháng 3, 2026  
+**Trạng thái**: Sẵn sàng triển khai ✅

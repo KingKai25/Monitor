@@ -1,284 +1,213 @@
-# Warehouse Monitoring System - Documentation Index
+﻿# Hệ Thống Giám Sát Kho Hàng - Mục Lục Tài Liệu
 
-Complete documentation for the ESP32-based warehouse monitoring and access control system.
+Tài liệu đầy đủ cho hệ thống giám sát và kiểm soát truy cập kho hàng dựa trên ESP32.
 
-## Quick Start Links
+## Liên Kết Nhanh
 
-- **🚀 Getting Started**: [SETUP_GUIDE.md](SETUP_GUIDE.md) - Complete hardware & software setup
-- **📱 Mobile App**: [BLYNK_SETUP.md](BLYNK_SETUP.md) - Blynk app configuration
-- **🔐 Fingerprint**: [AS608_GUIDE.md](AS608_GUIDE.md) - Employee access control
-- **⚡ Power Monitor**: [PZEM_GUIDE.md](PZEM_GUIDE.md) - Power consumption tracking
-- **☁️ Cloud Integration**: [google_sheets_script.gs](google_sheets_script.gs) - Google Sheets logging
+- **🚀 Bắt đầu**: [SETUP_GUIDE.md](SETUP_GUIDE.md) - Thiết lập phần cứng & phần mềm đầy đủ
+- **📱 Ứng dụng di động**: [BLYNK_SETUP.md](BLYNK_SETUP.md) - Cấu hình ứng dụng Blynk
+- **🔐 Vân tay**: [AS608_GUIDE.md](AS608_GUIDE.md) - Kiểm soát truy cập nhân viên
+- **⚡ Giám sát điện**: [PZEM_GUIDE.md](PZEM_GUIDE.md) - Theo dõi tiêu thụ điện năng
+- **☁️ Tích hợp Cloud**: [google_sheets_script.gs](google_sheets_script.gs) - Ghi log Google Sheets
 
-## Documentation Structure
+## Cấu Trúc Tài Liệu
 
-### 1. Setup & Installation
-- **Target**: First-time users, hardware integration
-- **Content**: [SETUP_GUIDE.md](SETUP_GUIDE.md)
-  - Phase 1: Hardware wiring (pins, connections)
-  - Phase 2: Software installation (PlatformIO, dependencies)
-  - Phase 3: Credentials configuration (WiFi, Blynk, Google)
-  - Phase 4: Firmware compilation & upload
-  - Phase 5: System testing
-  - Phase 6: Fingerprint enrollment
-  - Phase 7: Production deployment
+### 1. Thiết Lập & Cài Đặt
+- **Đối tượng**: Người dùng lần đầu, tích hợp phần cứng
+- **Nội dung**: [SETUP_GUIDE.md](SETUP_GUIDE.md)
+  - Giai đoạn 1: Nối dây phần cứng (chân, kết nối)
+  - Giai đoạn 2: Cài đặt phần mềm (PlatformIO, thư viện)
+  - Giai đoạn 3: Cấu hình credentials (WiFi, Blynk, Google)
+  - Giai đoạn 4: Biên dịch & nạp firmware
+  - Giai đoạn 5: Kiểm tra hệ thống
+  - Giai đoạn 6: Đăng ký vân tay
+  - Giai đoạn 7: Triển khai production
 
-### 2. Getting Credentials (NEW!)
-- **Target**: Users needing Blynk token & Google Script ID
-- **Content**: [GET_CREDENTIALS.md](GET_CREDENTIALS.md)
-  - Step-by-step Blynk account & token setup
-  - Google Apps Script deployment
-  - Google Sheets configuration
-  - Testing connection verification
-  - **Available in both English and Vietnamese**
+### 2. Lấy Thông Tin Xác Thực
+- **Đối tượng**: Người cần Blynk token & Google Script ID
+- **Nội dung**: [GET_CREDENTIALS.md](GET_CREDENTIALS.md)
+  - Hướng dẫn từng bước tạo tài khoản & lấy token Blynk
+  - Deploy Google Apps Script
+  - Cấu hình Google Sheets
+  - Kiểm tra kết nối
+  - **Có sẵn bằng tiếng Việt**
 
-### 3. Pin Mapping & Wiring (UPDATED!)
-- **Target**: Hardware integration reference
-- **Content**: [PIN_MAPPING_VI.md](PIN_MAPPING_VI.md)
-  - Updated GPIO assignments per your schematic
-  - Visual connection diagram
-  - Checklist for all connections
-  - UART Serial port configuration
-  - Troubleshooting wiring issues
-  - AS608 protocol overview
-  - Pin configuration and UART
-  - Enrollment process (step-by-step)
-  - Verification & identification
-  - Employee database integration
-  - Error handling & troubleshooting
-  - Diagnostic testing
+### 3. Sơ Đồ Chân & Nối Dây
+- **Đối tượng**: Tham chiếu tích hợp phần cứng
+- **Nội dung**: [PIN_MAPPING_VI.md](PIN_MAPPING_VI.md)
+  - Sơ đồ chân GPIO cập nhật theo schematic
+  - Sơ đồ kết nối trực quan
+  - Checklist tất cả kết nối
+  - Cấu hình cổng UART Serial
+  - Xử lý sự cố nối dây
+  - Tổng quan giao thức AS608
+  - Cấu hình chân và UART
+  - Quy trình đăng ký (từng bước)
+  - Xác thực & nhận dạng
+  - Tích hợp cơ sở dữ liệu nhân viên
+  - Xử lý lỗi & sự cố
+  - Kiểm tra chẩn đoán
 
-### 4. Power Monitoring
-- **Target**: Developers, maintenance engineers
-- **Content**: [PZEM_GUIDE.md](PZEM_GUIDE.md)
-  - PZEM-004T v3 overview
-  - Modbus RTU protocol details
-  - Register mapping and data extraction
-  - CRC calculation
-  - Real-world examples
-  - CT transformer configuration
-  - Calibration & testing
+### 4. Giám Sát Điện Năng
+- **Đối tượng**: Lập trình viên, kỹ sư bảo trì
+- **Nội dung**: [PZEM_GUIDE.md](PZEM_GUIDE.md)
+  - Tổng quan PZEM-004T v3
+  - Chi tiết giao thức Modbus RTU
+  - Bảng register và trích xuất dữ liệu
+  - Tính toán CRC
+  - Ví dụ thực tế
+  - Cấu hình biến dòng CT
+  - Hiệu chuẩn & kiểm tra
 
-### 5. Cloud Integration
-- **Target**: System administrators, developers
-- **Content**: [google_sheets_script.gs](google_sheets_script.gs)
-  - Google Apps Script functions
-  - Webhook handling
-  - Data logging to Google Sheets
-  - Email notifications
-  - Access log management
-  - Alert logging
+### 5. Tích Hợp Cloud
+- **Đối tượng**: Quản trị viên hệ thống, lập trình viên
+- **Nội dung**: [google_sheets_script.gs](google_sheets_script.gs)
+  - Các hàm Google Apps Script
+  - Xử lý webhook
+  - Ghi dữ liệu lên Google Sheets
+  - Thông báo email
+  - Quản lý log truy cập
+  - Ghi log cảnh báo
 
-### 6. Main Project README
-- **Target**: Overview and quick reference
-- **Content**: [../README.md](../README.md)
-  - Project features
-  - Hardware components
-  - Pin mapping
-  - Installation overview
-  - Blynk virtual pin reference
-  - API reference
+### 6. README Dự Án Chính
+- **Đối tượng**: Tổng quan và tham chiếu nhanh
+- **Nội dung**: [../README.md](../README.md)
+  - Tính năng dự án
+  - Linh kiện phần cứng
+  - Sơ đồ chân
+  - Tổng quan cài đặt
+  - Tham chiếu virtual pin Blynk
+  - Tham chiếu API
 
-## Feature Documentation
+## Tài Liệu Theo Tính Năng
 
-### Access Control
+### Kiểm Soát Truy Cập
 ```
-Employee Management:
-├─ Fingerprint enrollment (AS608)
-├─ Attendance tracking (Google Sheets)
-├─ Check-in/Out logging with timestamp
-├─ Multiple user support (up to 81+ employees)
-└─ Physical button + mobile app control
-```
-
-See: [AS608_GUIDE.md](AS608_GUIDE.md) - Complete protocol & implementation
-
-### Environmental Monitoring
-```
-Sensor Monitoring:
-├─ Temperature/Humidity (DHT11)
-├─ Smoke Detection (MQ2)
-├─ Fire Alerting
-├─ Configurable thresholds
-└─ Push notifications
+Quản Lý Nhân Viên:
+├─ Đăng ký vân tay (AS608)
+├─ Theo dõi chấm công (Google Sheets)
+├─ Ghi log vào/ra với timestamp
+├─ Hỗ trợ nhiều người dùng (tối đa 81+ nhân viên)
+└─ Điều khiển nút vật lý + ứng dụng di động
 ```
 
-See: [SETUP_GUIDE.md](SETUP_GUIDE.md) - Phase 5 Testing
+Xem: [AS608_GUIDE.md](AS608_GUIDE.md) - Giao thức & triển khai đầy đủ
 
-### Power Consumption
+### Giám Sát Môi Trường
 ```
-Energy Tracking:
-├─ Real-time power measurement (PZEM-004T)
-├─ Voltage, current, frequency monitoring
-├─ Energy consumption in kWh
-├─ Power factor calculations
-└─ Historical graphs
-```
-
-See: [PZEM_GUIDE.md](PZEM_GUIDE.md) - Complete Modbus protocol
-
-### Mobile Application
-```
-Blynk Dashboard:
-├─ Real-time sensor graphs
-├─ Light ON/OFF control
-├─ Alert notifications
-├─ Historical data charts
-└─ Remote monitoring
+Giám Sát Cảm Biến:
+├─ Nhiệt độ/Độ ẩm (DHT11)
+├─ Phát hiện khói (MQ2)
+├─ Cảnh báo cháy
+├─ Ngưỡng có thể cấu hình
+└─ Thông báo đẩy
 ```
 
-See: [BLYNK_SETUP.md](BLYNK_SETUP.md) - App configuration
+Xem: [SETUP_GUIDE.md](SETUP_GUIDE.md) - Giai đoạn 5 Kiểm Tra
 
-##  File Organization
+### Tiêu Thụ Điện Năng
+```
+Theo Dõi Năng Lượng:
+├─ Đo công suất thời gian thực (PZEM-004T)
+├─ Giám sát điện áp, dòng điện, tần số
+├─ Tiêu thụ năng lượng kWh
+├─ Tính hệ số công suất
+└─ Biểu đồ lịch sử
+```
+
+Xem: [PZEM_GUIDE.md](PZEM_GUIDE.md) - Giao thức Modbus đầy đủ
+
+### Ứng Dụng Di Động
+```
+Bảng Điều Khiển Blynk:
+├─ Biểu đồ cảm biến thời gian thực
+├─ Điều khiển bật/tắt đèn
+├─ Thông báo cảnh báo
+├─ Biểu đồ dữ liệu lịch sử
+└─ Giám sát từ xa
+```
+
+Xem: [BLYNK_SETUP.md](BLYNK_SETUP.md) - Cấu hình ứng dụng
+
+## Tổ Chức File
 
 ```
 Monitor/
 ├── docs/
-│   ├── README.md                    ← You are here
-│   ├── SETUP_GUIDE.md               ← Hardware & software setup
-│   ├── BLYNK_SETUP.md               ← Mobile app configuration
-│   ├── AS608_GUIDE.md               ← Fingerprint sensor details
-│   ├── PZEM_GUIDE.md                ← Power monitor details
-│   └── google_sheets_script.gs      ← Cloud logging script
+│   ├── README.md                    ← Bạn đang ở đây
+│   ├── SETUP_GUIDE.md               ← Thiết lập phần cứng & phần mềm
+│   ├── BLYNK_SETUP.md               ← Cấu hình ứng dụng di động
+│   ├── AS608_GUIDE.md               ← Chi tiết cảm biến vân tay
+│   ├── PZEM_GUIDE.md                ← Chi tiết giám sát điện
+│   ├── GET_CREDENTIALS.md           ← Hướng dẫn lấy credentials
+│   ├── PIN_MAPPING_VI.md            ← Sơ đồ chân GPIO
+│   └── google_sheets_script.gs      ← Script ghi log cloud
 │
 ├── src/
-│   ├── main.cpp                     ← Main firmware
-│   ├── fingerprint_sensor.cpp       ← AS608 implementation
-│   ├── power_monitor.cpp            ← PZEM-004T implementation
-│   └── cloud_logger.cpp             ← Google Sheets logging
+│   ├── main.cpp                     ← Firmware chính
+│   ├── fingerprint_sensor.cpp       ← Triển khai AS608
+│   ├── power_monitor.cpp            ← Triển khai PZEM-004T
+│   └── cloud_logger.cpp             ← Ghi log Google Sheets
 │
 ├── include/
-│   ├── config.h                     ← Pin definitions & config
-│   ├── fingerprint_sensor.h         ← AS608 header
-│   ├── power_monitor.h              ← PZEM-004T header
-│   └── cloud_logger.h               ← Google Sheets header
+│   ├── config.h                     ← Định nghĩa chân & cấu hình
+│   ├── fingerprint_sensor.h         ← Header AS608
+│   ├── power_monitor.h              ← Header PZEM-004T
+│   └── cloud_logger.h               ← Header Google Sheets
 │
-├── platformio.ini                   ← Build configuration
-├── README.md                        ← Project overview
-└── docs/ (this folder)             ← Documentation
+├── platformio.ini                   ← Cấu hình biên dịch
+├── README.md                        ← Tổng quan dự án
+└── docs/ (thư mục này)             ← Tài liệu
 ```
 
-## Common Tasks
+## Các Tác Vụ Thường Gặp
 
-### Task: Get Blynk Token and Google Script ID
-See: [GET_CREDENTIALS.md](GET_CREDENTIALS.md) - Complete step-by-step guide (Vietnamese & English)
+### Tác vụ: Lấy Blynk Token và Google Script ID
+Xem: [GET_CREDENTIALS.md](GET_CREDENTIALS.md) - Hướng dẫn chi tiết từng bước
 
-### Task: Check Pin Assignments
-See: [PIN_MAPPING_VI.md](PIN_MAPPING_VI.md) - Updated schematic pin mapping
+### Tác vụ: Kiểm tra sơ đồ chân
+Xem: [PIN_MAPPING_VI.md](PIN_MAPPING_VI.md) - Sơ đồ chân cập nhật theo schematic
 
-### Task: Enroll a new employee
-See: [AS608_GUIDE.md](AS608_GUIDE.md) → Enrollment Process
+### Tác vụ: Đăng ký nhân viên mới
+Xem: [AS608_GUIDE.md](AS608_GUIDE.md) → Quy Trình Đăng Ký
 
-### Task: Configure Blynk app for monitoring
-See: [BLYNK_SETUP.md](BLYNK_SETUP.md) → Mobile App Dashboard Setup
+### Tác vụ: Cấu hình Blynk app để giám sát
+Xem: [BLYNK_SETUP.md](BLYNK_SETUP.md) → Thiết Lập Bảng Điều Khiển
 
-### Task: Check power consumption of light
-See: [PZEM_GUIDE.md](PZEM_GUIDE.md) → Real-World Example
+### Tác vụ: Kiểm tra tiêu thụ điện của đèn
+Xem: [PZEM_GUIDE.md](PZEM_GUIDE.md) → Ví Dụ Thực Tế
 
-### Task: Set up Google Sheets logging
-See: [SETUP_GUIDE.md](SETUP_GUIDE.md) → Phase 3.3 & google_sheets_script.gs
+### Tác vụ: Thiết lập ghi log Google Sheets
+Xem: [SETUP_GUIDE.md](SETUP_GUIDE.md) → Giai đoạn 3.3 & google_sheets_script.gs
 
-### Task: Adjust sensor thresholds
-See: [SETUP_GUIDE.md](SETUP_GUIDE.md) → Phase 3.4
+### Tác vụ: Điều chỉnh ngưỡng cảm biến
+Xem: [SETUP_GUIDE.md](SETUP_GUIDE.md) → Giai đoạn 3.4
 
-### Task: Troubleshoot fingerprint sensor
-See: [AS608_GUIDE.md](AS608_GUIDE.md) → Troubleshooting
+### Tác vụ: Xử lý sự cố cảm biến vân tay
+Xem: [AS608_GUIDE.md](AS608_GUIDE.md) → Xử Lý Sự Cố
 
-### Task: Understand power readings
-See: [PZEM_GUIDE.md](PZEM_GUIDE.md) → Protocol & Examples
+### Tác vụ: Hiểu số liệu đo điện
+Xem: [PZEM_GUIDE.md](PZEM_GUIDE.md) → Giao Thức & Ví Dụ
 
-## Technology Stack
+## Công Nghệ Sử Dụng
 
 ```
-Hardware:
-├─ ESP32 Dev Board (Main controller)
-├─ AS608 (Fingerprint sensor)
-├─ PZEM-004T v3 (Power monitor)
-├─ DHT11 (Temperature/Humidity)
-├─ MQ2 (Smoke detector)
-└─ Relay + Buzzer (Outputs)
+Phần cứng:
+├─ Board ESP32 Dev (Bộ điều khiển chính)
+├─ AS608 (Cảm biến vân tay)
+├─ PZEM-004T v3 (Giám sát điện)
+├─ DHT11 (Nhiệt độ/Độ ẩm)
+├─ MQ2 (Phát hiện khói)
+└─ Relay + Còi (Đầu ra)
 
-Software:
-├─ PlatformIO IDE (Development)
-├─ Arduino Framework (Code)
-├─ Blynk (Mobile app & cloud)
-├─ Google Sheets (Data logging)
-└─ Serial UART (Device communication)
-
-Protocols:
-├─ WiFi (ESP32 connectivity)
-├─ Modbus RTU (PZEM communication)
-├─ UART Serial (AS608 & PZEM)
-├─ DHT1-Wire (DHT11)
-└─ Analog ADC (MQ2, Fire sensor)
+Phần mềm:
+├─ PlatformIO (Hệ thống biên dịch)
+├─ Arduino Framework (Thư viện lập trình)
+├─ Blynk IoT (Nền tảng cloud)
+├─ Google Apps Script (Ghi log)
+└─ C++ (Ngôn ngữ firmware)
 ```
-
-## Getting Help
-
-### Issue: Firmware won't compile
-1. Check [SETUP_GUIDE.md](SETUP_GUIDE.md) Phase 4
-2. Verify all libraries installed
-3. Check platformio.ini
-
-### Issue: Device not connecting to WiFi
-1. See [SETUP_GUIDE.md](SETUP_GUIDE.md) Phase 3.1
-2. Verify credentials in config.h
-3. Check WiFi signal strength
-
-### Issue: Fingerprint sensor not working
-1. See [AS608_GUIDE.md](AS608_GUIDE.md) Troubleshooting
-2. Verify baud rate: 57600
-3. Check RX/TX pins (GPIO9/10)
-
-### Issue: Blynk app not updating
-1. See [BLYNK_SETUP.md](BLYNK_SETUP.md)
-2. Verify auth token in config.h
-3. Check Blynk server status
-
-### Issue: Power readings incorrect
-1. See [PZEM_GUIDE.md](PZEM_GUIDE.md) Troubleshooting
-2. Verify CT ratio configuration
-3. Check baud rate: 9600
-
-## Document Status & Version
-
-| Document | Version | Status | Last Updated |
-|----------|---------|--------|--------------|
-| README.md | 1.0.0 | ✅ Complete | Mar 2026 |
-| SETUP_GUIDE.md | 1.0.0 | ✅ Complete | Mar 2026 |
-| BLYNK_SETUP.md | 1.0.0 | ✅ Complete | Mar 2026 |
-| AS608_GUIDE.md | 1.0.0 | ✅ Complete | Mar 2026 |
-| PZEM_GUIDE.md | 1.0.0 | ✅ Complete | Mar 2026 |
-| google_sheets_script.gs | 1.0.0 | ✅ Complete | Mar 2026 |
-| docs/README.md | 1.0.0 | ✅ Complete | Mar 2026 |
-
-## Roadmap & Future Documentation
-
-- [ ] Advanced automation guide (scheduled actions, interlocking)
-- [ ] Security hardening guide (encrypted communication, access control)
-- [ ] Maintenance manual (sensor cleaning, calibration)
-- [ ] Video tutorials (enrollment, app setup)
-- [ ] API reference (Cloud Logger, Power Monitor classes)
-- [ ] Performance optimization guide
-- [ ] Data analysis and reporting
-- [ ] Multi-device management
-
-## Contributing
-
-Found an issue or want to improve documentation?
-1. Note the section and specific problem
-2. Document the fix/improvement
-3. Submit for review
-
-## License
-
-All documentation is provided under MIT License. Feel free to use, modify, and distribute.
 
 ---
 
-**Warehouse Monitor System**  
-Comprehensive IoT Solution for Access Control, Environmental Monitoring, and Power Management  
-**Version**: 1.0.0  
-**Last Updated**: March 2026
-
-For the main project overview, see [../README.md](../README.md)
+**Cập nhật lần cuối**: Tháng 3, 2026

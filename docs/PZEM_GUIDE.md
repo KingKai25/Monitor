@@ -1,121 +1,121 @@
-# PZEM-004T Power Monitor Implementation Guide
+﻿# Hướng Dẫn Triển Khai Giám Sát Điện PZEM-004T
 
-Complete guide for PZEM-004T v3 power consumption monitoring in the warehouse system.
+Hướng dẫn đầy đủ cho giám sát tiêu thụ điện năng PZEM-004T v3 trong hệ thống kho hàng.
 
-## Overview
+## Tổng Quan
 
-**PZEM-004T v3 (Three-Phase or Single-Phase)**
-- Communication: Modbus RTU (Serial UART)
-- Baud Rate: 9600 bps (default)
-- Measurement Range:
-  - Voltage: 0-300V AC
-  - Current: 0-100A AC (depends on CT ratio)
-  - Power: 0-23000W
-  - Energy: Cumulative kWh
-  - Frequency: 45-65Hz
-  - Power Factor: 0-1
-- Accuracy: ±1% for voltage and current
+**PZEM-004T v3 (Đơn pha hoặc Ba pha)**
+- Giao tiếp: Modbus RTU (UART Serial)
+- Tốc độ Baud: 9600 bps (mặc định)
+- Phạm vi đo:
+  - Điện áp: 0-300V AC
+  - Dòng điện: 0-100A AC (phụ thuộc tỷ số CT)
+  - Công suất: 0-23000W
+  - Năng lượng: Tích lũy kWh
+  - Tần số: 45-65Hz
+  - Hệ số công suất: 0-1
+- Độ chính xác: ±1% cho điện áp và dòng điện
 
-## Pin Configuration
+## Cấu Hình Chân
 
 ```
-PZEM Pin     | Signal      | ESP32 Pin
+Chân PZEM    | Tín Hiệu   | Chân ESP32
 -------------|-------------|----------
-VCC          | 5V Power    | 5V
-GND          | Ground      | GND
-RX           | Serial RX   | GPIO16
-TX           | Serial TX   | GPIO17
-A (CT Input) | Current     | Via CT transformer
-L (Phase)    | AC Phase    | Main AC supply
-N (Neutral)  | AC Neutral  | Main AC neutral
+VCC          | Nguồn 5V   | 5V
+GND          | Ground     | GND
+RX           | Serial RX  | GPIO18 (D18)
+TX           | Serial TX  | GPIO19 (D19)
+A (CT Input) | Dòng điện  | Qua biến dòng CT
+L (Pha)      | Pha AC     | Nguồn AC chính
+N (Trung tính)| Trung tính AC | Trung tính AC chính
 ```
 
-**UART2 Configuration** (in firmware)
+**Cấu hình UART1 (Serial1)** (trong firmware)
 ```cpp
-#define PZEM_RX 16
-#define PZEM_TX 17
+#define PZEM_RX 19
+#define PZEM_TX 18
 SerialPZEM.begin(9600, SERIAL_8N1, PZEM_RX, PZEM_TX);
 ```
 
-## Modbus RTU Protocol
+## Giao Thức Modbus RTU
 
-### Frame Structure
+### Cấu Trúc Khung
 
 ```
-┌─────────────┬──────────────┬──────────┬──────────┐
-│  Slave ID   │  Function    │   Data   │   CRC    │
-│  (1 byte)   │   (1 byte)   │ (variable)│ (2 bytes)│
-└─────────────┴──────────────┴──────────┴──────────┘
-│<─── Address ───>│<──── PDU (Protocol Data Unit) ──>│
++-------------+--------------+----------+----------+
+|  Slave ID   |  Function    |   Data   |   CRC    |
+|  (1 byte)   |   (1 byte)   | (biến đổi)| (2 byte) |
++-------------+--------------+----------+----------+
+|<--- Địa chỉ --->|<---- PDU (Protocol Data Unit) -->|
 ```
 
 ### Slave ID
-- Default: 0xF8 (or 248 in decimal)
-- Configurable via command (0xB4)
-- Range: 1-247
+- Mặc định: 0xF8 (hoặc 248 thập phân)
+- Có thể cấu hình qua lệnh (0xB4)
+- Phạm vi: 1-247
 
-### Function Codes
-
-```
-0x03 = Read Holding Registers
-0x06 = Write Single Register
-0x10 = Write Multiple Registers
-0xB4 = Modbus PZEM extension (read/write params)
-```
-
-### Register Mapping (Function Code 0x03)
-
-Read registers starting from address with count.
-
-| Register | Address | Size | Unit | Default |
-|----------|---------|------|------|---------|
-| Voltage | 0x0000 | 2 | V | 230V |
-| Current | 0x0001 | 2 | A | 0A |
-| Power (H) | 0x0003 | 2 | W | 0W |
-| Power (L) | 0x0004 | 2 | W | - |
-| Energy (H) | 0x0005 | 2 | kWh | 0 |
-| Energy (L) | 0x0006 | 2 | kWh | - |
-| Frequency | 0x0007 | 1 | Hz | 50Hz |
-| Power Factor | 0x0008 | 1 | - | 1.0 |
-| Alarm | 0x0009 | 1 | - | 0 |
-
-## Data Representation
-
-### Two's Complement 16-bit Values
+### Mã Chức Năng
 
 ```
-Single Register (2 bytes):
-┌────────────┬────────────┐
-│  High Byte │  Low Byte  │
-└────────────┴────────────┘
+0x03 = Đọc Holding Register
+0x06 = Ghi Single Register
+0x10 = Ghi Multiple Register
+0xB4 = Mở rộng Modbus PZEM (đọc/ghi tham số)
+```
+
+### Bảng Register (Mã chức năng 0x03)
+
+Đọc register bắt đầu từ địa chỉ với số lượng.
+
+| Register | Địa Chỉ | Kích Thước | Đơn Vị | Mặc Định |
+|----------|---------|------------|--------|----------|
+| Điện áp | 0x0000 | 2 | V | 230V |
+| Dòng điện | 0x0001 | 2 | A | 0A |
+| Công suất (H) | 0x0003 | 2 | W | 0W |
+| Công suất (L) | 0x0004 | 2 | W | - |
+| Năng lượng (H) | 0x0005 | 2 | kWh | 0 |
+| Năng lượng (L) | 0x0006 | 2 | kWh | - |
+| Tần số | 0x0007 | 1 | Hz | 50Hz |
+| Hệ số công suất | 0x0008 | 1 | - | 1.0 |
+| Cảnh báo | 0x0009 | 1 | - | 0 |
+
+## Biểu Diễn Dữ Liệu
+
+### Giá Trị 16-bit Bù 2
+
+```
+Một Register (2 byte):
++------------+------------+
+|  Byte Cao  |  Byte Thấp |
++------------+------------+
   0-65535
 
-Example: Voltage = 230V
-├─ Register value: 0x00E6
-├─ Calculation: (0x00 << 8) | 0xE6
-├─ Decimal: 230
-└─ Display: 230V / 10 = 23.0V
+Ví dụ: Điện áp = 230V
+├─ Giá trị register: 0x00E6
+├─ Tính toán: (0x00 << 8) | 0xE6
+├─ Thập phân: 230
+└─ Hiển thị: 230V / 10 = 23.0V
 ```
 
-### Multi-Register Values (32-bit)
+### Giá Trị Đa Register (32-bit)
 
 ```
-Two Registers (4 bytes):
-┌──────────┬──────────┬──────────┬──────────┐
-│ Byte 1   │ Byte 2   │ Byte 3   │ Byte 4   │
-│ Register │ Register │ Register │ Register │
-└──────────┴──────────┴──────────┴──────────┘
+Hai Register (4 byte):
++----------+----------+----------+----------+
+| Byte 1   | Byte 2   | Byte 3   | Byte 4   |
+| Register | Register | Register | Register |
++----------+----------+----------+----------+
 
-Example: Power = 2345W
-├─ Registers: [0x0000, 0x0929]
-├─ Combined: (0x0000 << 16) | 0x0929
-├─ Decimal: 2345
-└─ Display: 2345W
+Ví dụ: Công suất = 2345W
+├─ Register: [0x0000, 0x0929]
+├─ Kết hợp: (0x0000 << 16) | 0x0929
+├─ Thập phân: 2345
+└─ Hiển thị: 2345W
 ```
 
-## CRC Calculation
+## Tính Toán CRC
 
-Modbus RTU uses 16-bit CRC-CCITT
+Modbus RTU sử dụng CRC-CCITT 16-bit
 
 ```cpp
 uint16_t calculateCRC(uint8_t* frame, uint8_t length) {
@@ -137,77 +137,77 @@ uint16_t calculateCRC(uint8_t* frame, uint8_t length) {
 }
 ```
 
-## Read Voltage Example
+## Ví Dụ Đọc Điện Áp
 
-### Command Frame
+### Khung Lệnh
 
 ```
 Slave ID:    0xF8
-Function:    0x03 (Read Holding Registers)
-Start Addr:  0x0000 (high), 0x00 (low)
-Qty Registers: 0x0001
-CRC:         Calculated
+Function:    0x03 (Đọc Holding Register)
+Đ/c bắt đầu: 0x0000 (cao), 0x00 (thấp)
+Số register:  0x0001
+CRC:         Tính toán
 
-Frame: F8 03 00 00 00 01 [CRC_H] [CRC_H]
+Khung: F8 03 00 00 00 01 [CRC_H] [CRC_L]
 
-Calculation:
-├─ Data: F8 03 00 00 00 01
+Tính toán:
+├─ Dữ liệu: F8 03 00 00 00 01
 ├─ CRC = 0xE407
-└─ Frame: F8 03 00 00 00 01 E4 07
+└─ Khung: F8 03 00 00 00 01 E4 07
 ```
 
-### Response Frame
+### Khung Phản Hồi
 
 ```
 Slave ID:    0xF8
 Function:    0x03
-Byte Count:  0x02 (2 bytes following)
+Số byte:     0x02 (2 byte tiếp theo)
 Register H:  0x00
-Register L:  0xE6 (230 in decimal)
-CRC:         Calculated
+Register L:  0xE6 (230 thập phân)
+CRC:         Tính toán
 
-Frame: F8 03 02 00 E6 [CRC_H] [CRC_L]
+Khung: F8 03 02 00 E6 [CRC_H] [CRC_L]
 
-Value Extraction:
-├─ High byte: 0x00
-├─ Low byte: 0xE6
-├─ Combined: (0x00 << 8) | 0xE6 = 0x00E6
-├─ Decimal: 230
-├─ Voltage: 230 / 10 = 23.0V (or 230V after scaling)
+Trích xuất giá trị:
+├─ Byte cao: 0x00
+├─ Byte thấp: 0xE6
+├─ Kết hợp: (0x00 << 8) | 0xE6 = 0x00E6
+├─ Thập phân: 230
+├─ Điện áp: 230 / 10 = 23.0V (hoặc 230V sau chia tỷ lệ)
 ```
 
-## Implementation Code
+## Code Triển Khai
 
-### Basic Read Function
+### Hàm Đọc Cơ Bản
 
 ```cpp
 bool PowerMonitor::readVoltage(float& voltage) {
-  // Build command: Read register 0x0000
+  // Tao lenh: Doc register 0x0000
   uint8_t cmd[] = {0xF8, 0x03, 0x00, 0x00, 0x00, 0x02};
   
-  // Calculate and append CRC
+  // Tinh va them CRC
   uint16_t crc = calculateCRC(cmd, 6);
   uint8_t fullCmd[] = {0xF8, 0x03, 0x00, 0x00, 0x00, 0x02, 
                        (uint8_t)(crc >> 8), (uint8_t)(crc & 0xFF)};
   
-  // Send command
+  // Gui lenh
   sendFrame(fullCmd, 8);
   
-  // Wait for response
+  // Cho phan hoi
   delay(100);
   
-  // Read response: 1 byte slave + 1 byte func + 1 byte count + 2 bytes data + 2 bytes CRC
+  // Doc phan hoi: 1 byte slave + 1 byte func + 1 byte count + 2 byte data + 2 byte CRC
   uint8_t response[7] = {0};
   
   if (readFrame(response, 7)) {
-    // Verify response
+    // Xac minh phan hoi
     if (response[0] != 0xF8 || response[1] != 0x03) {
       return false;
     }
     
-    // Extract voltage (Little-endian for Modbus)
+    // Trich xuat dien ap
     uint16_t rawVoltage = (response[3] << 8) | response[4];
-    voltage = rawVoltage / 10.0;  // Scale factor
+    voltage = rawVoltage / 10.0;  // He so ty le
     
     return true;
   }
@@ -216,81 +216,80 @@ bool PowerMonitor::readVoltage(float& voltage) {
 }
 ```
 
-### CRC Verification
+### Xác Minh CRC
 
 ```cpp
 bool PowerMonitor::readFrame(uint8_t* frame, uint8_t length) {
   unsigned long timeout = millis() + 1000;
   uint8_t idx = 0;
   
-  // Read data + CRC (length + 2 bytes for CRC)
+  // Doc du lieu + CRC (length + 2 byte cho CRC)
   while (millis() < timeout) {
     if (serial.available()) {
       frame[idx++] = serial.read();
       if (idx >= length + 2) {
-        // Verify CRC
+        // Xac minh CRC
         uint16_t receivedCrc = (frame[length] << 8) | frame[length + 1];
         uint16_t calculatedCrc = calculateCRC(frame, length);
         
         if (receivedCrc == calculatedCrc) {
-          return true;  // Valid frame
+          return true;  // Khung hop le
         } else {
-          return false; // CRC error
+          return false; // Loi CRC
         }
       }
     }
   }
   
-  return false;  // Timeout
+  return false;  // Het thoi gian cho
 }
 ```
 
-### Read All Metrics
+### Đọc Tất Cả Thông Số
 
 ```cpp
 bool PowerMonitor::readAll() {
-  // Prepare arrays for all values
   float voltage, current, power, energy, frequency, powerFactor;
   
-  Serial.println("Reading power metrics...");
+  Serial.println("Dang doc thong so dien...");
   
-  // Read each parameter with delay
+  // Doc tung tham so voi do tre
   if (!readVoltage(voltage)) {
-    Serial.println("Failed to read voltage");
+    Serial.println("Doc dien ap that bai");
     return false;
   }
   delay(100);
   
   if (!readCurrent(current)) {
-    Serial.println("Failed to read current");
+    Serial.println("Doc dong dien that bai");
     return false;
   }
   delay(100);
   
   if (!readPower(power)) {
-    Serial.println("Failed to read power");
+    Serial.println("Doc cong suat that bai");
     return false;
   }
   delay(100);
   
   if (!readEnergy(energy)) {
-    Serial.println("Failed to read energy");
+    Serial.println("Doc nang luong that bai");
     return false;
   }
   delay(100);
   
   if (!readFrequency(frequency)) {
-    Serial.println("Failed to read frequency");
+    Serial.println("Doc tan so that bai");
     return false;
   }
   delay(100);
   
   if (!readPowerFactor(powerFactor)) {
-    Serial.println("Failed to read power factor");
+    Serial.println("Doc he so cong suat that bai");
     return false;
   }
   
-  // Store in registers and display
+  // Luu vao register va hien thi
   registers.voltage = voltage;
   registers.current = current;
   registers.power = power;
@@ -298,18 +297,18 @@ bool PowerMonitor::readAll() {
   registers.frequency = frequency;
   registers.powerFactor = powerFactor;
   
-  Serial.print("Voltage: "); Serial.print(voltage); Serial.println(" V");
-  Serial.print("Current: "); Serial.print(current); Serial.println(" A");
-  Serial.print("Power: "); Serial.print(power); Serial.println(" W");
-  Serial.print("Energy: "); Serial.print(energy); Serial.println(" kWh");
-  Serial.print("Frequency: "); Serial.print(frequency); Serial.println(" Hz");
-  Serial.print("Power Factor: "); Serial.println(powerFactor);
+  Serial.print("Dien ap: "); Serial.print(voltage); Serial.println(" V");
+  Serial.print("Dong dien: "); Serial.print(current); Serial.println(" A");
+  Serial.print("Cong suat: "); Serial.print(power); Serial.println(" W");
+  Serial.print("Nang luong: "); Serial.print(energy); Serial.println(" kWh");
+  Serial.print("Tan so: "); Serial.print(frequency); Serial.println(" Hz");
+  Serial.print("He so CS: "); Serial.println(powerFactor);
   
   return true;
 }
 ```
 
-## Scaling Factors
+## Hệ Số Tỷ Lệ
 
 ```cpp
 const float VOLTAGE_SCALE = 10.0;    // V
@@ -320,13 +319,12 @@ const float FREQUENCY_SCALE = 10.0;  // 1/10 Hz
 const float PF_SCALE = 100.0;        // 1/100
 ```
 
-## Reset/Configuration Commands
+## Lệnh Reset/Cấu Hình
 
-### Reset Energy Counter
+### Reset Bộ Đếm Năng Lượng
 
 ```cpp
 bool PowerMonitor::resetEnergy() {
-  // Command: 0xB4 reset command
   uint8_t cmd[] = {0xF8, 0xB4, 0x80, 0x11, 0x00, 0x00};
   
   uint16_t crc = calculateCRC(cmd, 6);
@@ -342,11 +340,10 @@ bool PowerMonitor::resetEnergy() {
 }
 ```
 
-### Change Slave ID
+### Đổi Slave ID
 
 ```cpp
 bool PowerMonitor::setSlaveId(uint8_t newId) {
-  // Command: 0xB4 with new slave ID
   uint8_t cmd[] = {0xF8, 0xB4, 0x00, 0x02, 0x00, newId};
   
   uint16_t crc = calculateCRC(cmd, 6);
@@ -363,110 +360,110 @@ bool PowerMonitor::setSlaveId(uint8_t newId) {
 }
 ```
 
-## Current Transformer (CT) Ratio
+## Biến Dòng (CT) Tỷ Số
 
-### Physical Connection
+### Kết Nối Vật Lý
 
 ```
-           ┌─── Main AC Phase
-           │
-        ╔══════╗
-        ║  CT  ║ (Current Transformer)
-        ║ n:m  ║
-        ╚══════╝
-           │
-           └─── to PZEM
+           +--- Dây pha AC chính
+           |
+        +======+
+        |  CT  | (Biến dòng)
+        | n:m  |
+        +======+
+           |
+           +--- đến PZEM
            
-Common CT ratios:
+Tỷ số CT phổ biến:
 ├─ 100A/5A = 20:1
 ├─ 200A/5A = 40:1
 ├─ 300A/5A = 60:1
-└─ Adjustable via PZEM settings
+└─ Có thể điều chỉnh qua cài đặt PZEM
 ```
 
-### Configuration
+### Cấu Hình
 
 ```
-PZEM-004T allows CT ratio configuration:
-1. Via command 0xB4 register 0x00, 0x01
-2. Default: Usually 100A/5A (ratio 20)
+PZEM-004T cho phép cấu hình tỷ số CT:
+1. Qua lệnh 0xB4 register 0x00, 0x01
+2. Mặc định: Thường 100A/5A (tỷ số 20)
 
-Example for 200A/5A (ratio 40):
-├─ Command: 0xB4 0x00 0x01 0x00 0x28
-└─ Value: 40 (0x0028)
+Ví dụ cho 200A/5A (tỷ số 40):
+├─ Lệnh: 0xB4 0x00 0x01 0x00 0x28
+└─ Giá trị: 40 (0x0028)
 ```
 
-## Calibration & Testing
+## Hiệu Chuẩn & Kiểm Tra
 
-### 1. No-Load Calibration
+### 1. Hiệu Chuẩn Không Tải
 ```
-1. Disconnect load from measured circuit
-2. PZEM should read ~0A, ~0W
-3. If not, use zero-offset calibration command
-```
-
-### 2. Load Test
-
-```
-Light bulb test:
-├─ 100W bulb
-├─ Expected: 100W at rated voltage
-├─ Example: 230V = 100W / 230V ≈ 0.43A
-└─ Compare with PZEM reading
+1. Ngắt tải khỏi mạch đo
+2. PZEM phải đọc ~0A, ~0W
+3. Nếu không, sử dụng lệnh hiệu chuẩn offset zero
 ```
 
-### 3. Energy Verification
+### 2. Test Tải
 
 ```
-Run light for 1 hour:
-├─ 100W × 1 hour = 0.1 kWh
-├─ PZEM should show ~0.1 kWh increase
-└─ Verify calculation: Energy = Power × Time
+Test bóng đèn:
+├─ Bóng đèn 100W
+├─ Dự kiến: 100W ở điện áp danh định
+├─ Ví dụ: 230V = 100W / 230V ≈ 0.43A
+└─ So sánh với giá trị PZEM đọc được
 ```
 
-## Troubleshooting
+### 3. Xác Minh Năng Lượng
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| **No response** | Serial connection | Check RX/TX pins, baud rate |
-| **Voltage always 0** | Circuit not connected | Check CT connection to AC |
-| **Current reads 0** | CT not installed | Install CT transformer |
-| **False readings** | CT ratio wrong | Recalibrate with known load |
-| **CRC error** | Noise/baud mismatch | Check serial speed 9600 |
-| **Power shows 0W** | Load off | Turn on light or device |
-| **Energy not increasing** | Reset happened | Check reset command execution |
+```
+Chạy đèn trong 1 giờ:
+├─ 100W x 1 giờ = 0.1 kWh
+├─ PZEM phải hiển thị tăng ~0.1 kWh
+└─ Xác minh: Năng lượng = Công suất x Thời gian
+```
 
-## Real-World Example: Light Bulb Monitoring
+## Xử Lý Sự Cố
+
+| Vấn Đề | Nguyên Nhân | Giải Pháp |
+|---------|-------------|-----------|
+| **Không phản hồi** | Kết nối serial | Kiểm tra chân RX/TX (GPIO18/19), baud rate |
+| **Điện áp luôn = 0** | Mạch chưa kết nối | Kiểm tra kết nối CT với AC |
+| **Dòng điện đọc = 0** | CT chưa lắp | Lắp biến dòng CT |
+| **Giá trị sai** | Tỷ số CT sai | Hiệu chuẩn lại với tải đã biết |
+| **Lỗi CRC** | Nhiễu/baud sai | Kiểm tra tốc độ serial 9600 |
+| **Công suất hiển thị 0W** | Tải tắt | Bật đèn hoặc thiết bị |
+| **Năng lượng không tăng** | Đã reset | Kiểm tra thực thi lệnh reset |
+
+## Ví Dụ Thực Tế: Giám Sát Bóng Đèn
 
 ```cpp
 struct LightBulbMetrics {
-  float instantPower;      // Current watts
-  float dailyEnergy;       // kWh used today
-  float costPerHour;       // Calculated cost
-  uint32_t lastReadTime;   // For rate limiting
+  float instantPower;      // Watt hien tai
+  float dailyEnergy;       // kWh su dung hom nay
+  float costPerHour;       // Chi phi tinh toan
+  uint32_t lastReadTime;   // Gioi han toc do doc
 };
 
 LightBulbMetrics bulb;
-const float COST_PER_KWH = 2.5;  // Example: $2.50/kWh
+const float COST_PER_KWH = 2500;  // Vi du: 2500 VND/kWh
 
 void updateBulbMetrics() {
   if (millis() - bulb.lastReadTime < 5000) {
-    return;  // Read every 5 seconds
+    return;  // Doc moi 5 giay
   }
   
   float voltage, current, power, energy;
   if (powerMonitor.readAll(voltage, current, power, energy)) {
     bulb.instantPower = power;
     bulb.dailyEnergy = energy;
-    bulb.costPerHour = (power / 1000.0) * COST_PER_KWH;  // kW * $/kWh
+    bulb.costPerHour = (power / 1000.0) * COST_PER_KWH;
     
-    // Log to Blynk
-    Blynk.virtualWrite(V6, power);      // Watts
+    // Ghi log len Blynk
+    Blynk.virtualWrite(V6, power);      // Watt
     Blynk.virtualWrite(V7, energy);     // kWh
     
-    // Alert if high power
+    // Canh bao neu cong suat cao
     if (power > 2000) {
-      Blynk.logEvent("high_power", "Bulb consuming " + String(power) + "W");
+      Blynk.logEvent("high_power", "Den tieu thu " + String(power) + "W");
     }
     
     bulb.lastReadTime = millis();
@@ -474,62 +471,62 @@ void updateBulbMetrics() {
 }
 ```
 
-## Integration with Blynk
+## Tích Hợp Với Blynk
 
 ```cpp
-// In updateBlynkValues():
+// Trong updateBlynkValues():
 void updateBlynkValues() {
   float v, i, p, e;
   
   if (powerMonitor.readAll(v, i, p, e)) {
-    Blynk.virtualWrite(V8, v);  // Voltage
-    Blynk.virtualWrite(V9, i);  // Current
-    Blynk.virtualWrite(V6, p);  // Power (graph/gauge)
-    Blynk.virtualWrite(V7, e);  // Energy (kWh counter)
+    Blynk.virtualWrite(V8, v);  // Dien ap
+    Blynk.virtualWrite(V9, i);  // Dong dien
+    Blynk.virtualWrite(V6, p);  // Cong suat (bieu do/dong ho)
+    Blynk.virtualWrite(V7, e);  // Nang luong (kWh)
   }
 }
 ```
 
-## Performance Metrics
+## Chỉ Số Hiệu Suất
 
 ```
-Read Voltage: ~150ms
-Read Current: ~150ms
-Read Power: ~150ms
-Read Energy: ~150ms
-Read Frequency: ~100ms
-Read All (optimized): ~500-700ms
+Đọc điện áp: ~150ms
+Đọc dòng điện: ~150ms
+Đọc công suất: ~150ms
+Đọc năng lượng: ~150ms
+Đọc tần số: ~100ms
+Đọc tất cả (tối ưu): ~500-700ms
 ```
 
-## References
+## Tham Khảo
 
-- PZEM-004T v3 Protocol Manual
-- Modbus RTU Standard IEC 61110
-- CT Transformer specifications
-- AC Power measurement theory
+- Hướng dẫn giao thức PZEM-004T v3
+- Tiêu chuẩn Modbus RTU IEC 61110
+- Thông số kỹ thuật biến dòng CT
+- Lý thuyết đo công suất AC
 
-## Implementation Status
+## Trạng Thái Triển Khai
 
-- ✅ Header file: `include/power_monitor.h`
-- ✅ Source file: `src/power_monitor.cpp`
-- ✅ CRC calculation
-- ✅ Basic Modbus reading
-- 📋 CT ratio configuration
-- 📋 Energy reset function
-- 📋 Advanced diagnostics
+- ✅ File header: `include/power_monitor.h`
+- ✅ File source: `src/power_monitor.cpp`
+- ✅ Tính toán CRC
+- ✅ Đọc Modbus cơ bản
+- 📋 Cấu hình tỷ số CT
+- 📋 Hàm reset năng lượng
+- 📋 Chẩn đoán nâng cao
 
-## Next Steps
+## Bước Tiếp Theo
 
-1. Compile and upload firmware
-2. Test serial communication with PZEM
-3. Verify CRC handling
-4. Test voltage/current readings with known load
-5. Calibrate CT transformer ratio
-6. Integrate with light bulb monitoring
-7. Display metrics on Blynk app
-8. Log to Google Sheets
+1. Biên dịch và nạp firmware
+2. Test giao tiếp serial với PZEM
+3. Xác minh xử lý CRC
+4. Test đọc điện áp/dòng điện với tải đã biết
+5. Hiệu chuẩn tỷ số biến dòng CT
+6. Tích hợp với giám sát bóng đèn
+7. Hiển thị số liệu trên Blynk app
+8. Ghi log lên Google Sheets
 
 ---
 
-**Last Updated**: March 2026
-**Firmware Version**: 1.0.0 (PZEM-004T Integration)
+**Cập nhật lần cuối**: Tháng 3, 2026
+**Phiên bản Firmware**: 1.0.1 (Tích hợp PZEM-004T)
