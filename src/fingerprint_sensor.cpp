@@ -1,167 +1,144 @@
 #include "fingerprint_sensor.h"
-#include "config.h"
 
-// Global instance
-FingerprintSensor fingerprint(Serial1);
+// ========== TERMINAL HELPER ==========
+void FingerprintSensor::tprint(const char* msg) {
+  Serial.println(msg);
+  if (termPrint) termPrint(msg);
+}
 
-void FingerprintSensor::begin(uint32_t baudrate) {
-  serial.begin(baudrate, SERIAL_8N1, FINGERPRINT_RX, FINGERPRINT_TX);
+// ========== INIT ==========
+void FingerprintSensor::begin() {
+  pinMode(TCH_PIN, INPUT);
+
+  serial.begin(FINGERPRINT_BAUD, SERIAL_8N1, FINGERPRINT_RX, FINGERPRINT_TX);
+  finger.begin(FINGERPRINT_BAUD);
   delay(1000);
-  
-  Serial.println("[Fingerprint] AS608 Initialized at 57600 baud");
-  delay(100);
-  
-  if (isConnected()) {
-    Serial.println("[Fingerprint] ✓ AS608 Connected!");
-    printStatus();
+
+  if (finger.verifyPassword()) {
+    Serial.println("[Finger] AS608 ket noi thanh cong!");
+    finger.getTemplateCount();
+    Serial.printf("[Finger] So van tay da luu: %d / %d\n", finger.templateCount, finger.capacity);
   } else {
-    Serial.println("[Fingerprint] ✗ AS608 Not responding!");
+    Serial.println("[Finger] LOI: Khong ket noi duoc AS608! Kiem tra day noi.");
   }
 }
 
+// ========== ENROLL ==========
 bool FingerprintSensor::enrollNewFingerprint(uint8_t id) {
-  Serial.print("[Fingerprint] Starting enrollment for ID: ");
-  Serial.println(id);
-  
-  // Implement AS608 enrollment process
-  // This is a simplified version - needs full AS608 protocol implementation
-  
-  // Step 1: Send ENROLL command
-  uint8_t cmd[] = {0x01, id};  // Command: ENROLL, Param: ID
-  sendCommand(0x01, cmd, 2);
-  
-  // Step 2: Wait for finger placement and capture
-  Serial.println("[Fingerprint] Please place finger on sensor...");
-  
-  // Step 3: Verify capture quality
-  uint8_t response[256];
-  uint16_t len = 0;
-  
-  for (int attempt = 0; attempt < DEFAULT_ENROLLMENT_ATTEMPTS; attempt++) {
-    delay(500);
-    if (readResponse(response, len)) {
-      Serial.print("[Fingerprint] Attempt ");
-      Serial.print(attempt + 1);
-      Serial.println(" - Image captured");
-    }
+  char buf[60];
+  snprintf(buf, sizeof(buf), ">> Dang ky van tay ID #%d", id);
+  tprint(buf);
+
+  // --- Lan 1 ---
+  tprint("Đặt ngón tay lên cảm biến (lần 1)...");
+  uint8_t p = 0xFF;
+  unsigned long start = millis();
+  while (millis() - start < 10000) {
+    p = finger.getImage();
+    if (p == FINGERPRINT_OK) break;
+    delay(200);
   }
-  
-  Serial.println("[Fingerprint] Enrollment complete!");
-  enrollCount++;
+  if (p != FINGERPRINT_OK) { tprint("Lỗi: Không nhận được vân tay!"); return false; }
+  tprint("Chụp ảnh 1 OK.");
+
+  p = finger.image2Tz(1);
+  if (p != FINGERPRINT_OK) { tprint("Lỗi: Xử lý ảnh 1 thất bại!"); return false; }
+
+  // --- Nhấc tay ---
+  tprint("Nhấc ngón tay ra...");
+  delay(2000);
+  while (finger.getImage() != FINGERPRINT_NOFINGER) delay(100);
+
+  // --- Lần 2 ---
+  tprint("Đặt lại ngón tay (lần 2)...");
+  start = millis();
+  p = 0xFF;
+  while (millis() - start < 10000) {
+    p = finger.getImage();
+    if (p == FINGERPRINT_OK) break;
+    delay(200);
+  }
+  if (p != FINGERPRINT_OK) { tprint("Lỗi: Không nhận được vân tay lần 2!"); return false; }
+  tprint("Chụp ảnh 2 OK.");
+
+  p = finger.image2Tz(2);
+  if (p != FINGERPRINT_OK) { tprint("Lỗi: Xử lý ảnh 2 thất bại!"); return false; }
+
+  // --- Merge + Store ---
+  p = finger.createModel();
+  if (p == FINGERPRINT_ENROLLMISMATCH) { tprint("Lỗi: 2 lần quét KHÔNG khớp!"); return false; }
+  if (p != FINGERPRINT_OK) { tprint("Lỗi: Tạo mô hình thất bại!"); return false; }
+
+  p = finger.storeModel(id);
+  if (p != FINGERPRINT_OK) { tprint("Lỗi: Lưu vân tay thất bại!"); return false; }
+
+  snprintf(buf, sizeof(buf), ">> Đã lưu ID #%d THÀNH CÔNG!", id);
+  tprint(buf);
   return true;
 }
 
-bool FingerprintSensor::verifyFingerprint(uint8_t& matchedId) {
-  Serial.println("[Fingerprint] Please place finger on sensor...");
-  
-  // Implement AS608 verification process
-  delay(500);
-  
-  // Send VERIFY command
-  uint8_t cmd[] = {0x00};  // Command: VERIFY
-  sendCommand(0x00, cmd, 1);
-  
-  // Read response with matched ID
-  uint8_t response[256];
-  uint16_t len = 0;
-  
-  if (readResponse(response, len)) {
-    matchedId = response[0];
-    Serial.print("[Fingerprint] Match found! ID: ");
-    Serial.println(matchedId);
+// ========== DELETE ==========
+bool FingerprintSensor::deleteFingerprint(uint8_t id) {
+  char buf[60];
+  uint8_t p = finger.deleteModel(id);
+  if (p == FINGERPRINT_OK) {
+    snprintf(buf, sizeof(buf), "Đã xóa vân tay ID #%d.", id);
+    tprint(buf);
     return true;
   }
-  
-  Serial.println("[Fingerprint] No match found");
+  snprintf(buf, sizeof(buf), "Lỗi: Không thể xóa ID #%d!", id);
+  tprint(buf);
   return false;
 }
 
-bool FingerprintSensor::deleteFingerprint(uint8_t id) {
-  Serial.print("[Fingerprint] Deleting ID: ");
-  Serial.println(id);
-  
-  uint8_t cmd[] = {0x02, id};  // Command: DELETE
-  sendCommand(0x02, cmd, 2);
-  
-  return true;
+// ========== SCAN ==========
+int FingerprintSensor::scanFingerprint() {
+  uint8_t p = finger.getImage();
+  if (p != FINGERPRINT_OK) return -1;
+
+  p = finger.image2Tz();
+  if (p != FINGERPRINT_OK) return -1;
+
+  p = finger.fingerSearch();
+  if (p != FINGERPRINT_OK) return -1;
+
+  return finger.fingerID;
 }
 
-bool FingerprintSensor::deleteAllFingerprints() {
-  Serial.println("[Fingerprint] Deleting all fingerprints...");
-  
-  uint8_t cmd[] = {0x03};  // Command: DELETE_ALL
-  sendCommand(0x03, cmd, 1);
-  
-  enrollCount = 0;
-  return true;
+// ========== TOUCH DETECT ==========
+bool FingerprintSensor::isTouching() {
+  return digitalRead(TCH_PIN) == HIGH;
+}
+
+// ========== STATUS ==========
+bool FingerprintSensor::isConnected() {
+  return finger.verifyPassword();
+}
+
+bool FingerprintSensor::isIdStored(uint8_t id) {
+  return finger.loadModel(id) == FINGERPRINT_OK;
+}
+
+bool FingerprintSensor::deleteAll() {
+  uint8_t p = finger.emptyDatabase();
+  if (p == FINGERPRINT_OK) {
+    tprint("Đã xóa toàn bộ vân tay!");
+    return true;
+  }
+  tprint("Lỗi: Không thể xóa toàn bộ!");
+  return false;
 }
 
 uint16_t FingerprintSensor::getFingerCount() {
-  // Query module for current fingerprint count
-  return enrollCount;
+  finger.getTemplateCount();
+  return finger.templateCount;
 }
 
-bool FingerprintSensor::setSecurityLevel(uint8_t level) {
-  if (level < 1 || level > 5) {
-    Serial.println("[Fingerprint] Invalid security level (1-5)");
-    return false;
-  }
-  
-  Serial.print("[Fingerprint] Setting security level to: ");
-  Serial.println(level);
-  
-  uint8_t cmd[] = {0x04, level};  // Command: SET_LEVEL
-  sendCommand(0x04, cmd, 2);
-  
-  return true;
-}
-
-bool FingerprintSensor::isConnected() {
-  // Send PING command
-  uint8_t cmd[] = {0xFF};  // PING command
-  sendCommand(0xFF, cmd, 1);
-  
-  uint8_t response[256];
-  uint16_t len = 0;
-  
-  delay(500);
-  return readResponse(response, len);
-}
-
-void FingerprintSensor::sendCommand(uint8_t cmd, uint8_t* data, uint16_t dataLen) {
-  // Simplified command sending - implement full AS608 protocol
-  serial.write(cmd);
-  serial.write(data, dataLen);
-  serial.flush();
-}
-
-bool FingerprintSensor::readResponse(uint8_t* response, uint16_t& len) {
-  len = 0;
-  unsigned long timeout = millis() + 1000;
-  
-  while (millis() < timeout) {
-    if (serial.available()) {
-      response[len++] = serial.read();
-      if (len >= 256) break;
+void FingerprintSensor::listAllIds(uint8_t* ids, uint8_t& count, uint8_t maxCount) {
+  count = 0;
+  for (uint8_t i = 1; i <= maxCount && count < maxCount; i++) {
+    if (finger.loadModel(i) == FINGERPRINT_OK) {
+      ids[count++] = i;
     }
   }
-  
-  return len > 0;
-}
-
-uint16_t FingerprintSensor::calculateChecksum(uint8_t* data, uint16_t len) {
-  uint16_t sum = 0;
-  for (uint16_t i = 0; i < len; i++) {
-    sum += data[i];
-  }
-  return sum;
-}
-
-void FingerprintSensor::printStatus() {
-  Serial.println("\n=== Fingerprint Sensor Status ===");
-  Serial.print("Connected: ");
-  Serial.println(isConnected() ? "Yes" : "No");
-  Serial.print("Enrolled IDs: ");
-  Serial.println(enrollCount);
-  Serial.println("===================================\n");
 }

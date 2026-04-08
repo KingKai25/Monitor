@@ -66,6 +66,3 @@ public:
   float getPower() const { return registers.power; }
   float getEnergy() const { return registers.energy; }
 };
-
-// External instance
-extern PowerMonitor powerMonitor;

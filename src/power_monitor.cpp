@@ -1,9 +1,6 @@
 #include "power_monitor.h"
 #include "config.h"
 
-// Global instance
-PowerMonitor powerMonitor(Serial2, 0xF8);
-
 void PowerMonitor::begin(uint32_t baudrate) {
   serial.begin(baudrate, SERIAL_8N1, PZEM_RX, PZEM_TX);
   delay(500);

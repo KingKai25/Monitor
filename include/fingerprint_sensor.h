@@ -1,49 +1,33 @@
 #pragma once
 
 #include <Arduino.h>
-#include <HardwareSerial.h>
+#include <Adafruit_Fingerprint.h>
+#include "config.h"
 
-// AS608 Fingerprint Sensor Handler
+// Callback for sending messages to Blynk Terminal
+typedef void (*TerminalPrintFunc)(const char* msg);
+
 class FingerprintSensor {
 private:
   HardwareSerial& serial;
-  uint8_t enrollCount;
-  
-  // AS608 Command structure
-  struct Command {
-    uint8_t header[2];    // 0xEF, 0x01
-    uint8_t addr[4];      // Module address (default FFFFFFFF)
-    uint8_t pid;          // Packet ID type
-    uint8_t length[2];    // Data length
-    uint8_t data[256];    // Command data
-    uint8_t checksum[2];  // Checksum
-  };
+  Adafruit_Fingerprint finger;
+  TerminalPrintFunc termPrint;
 
-  // Helper functions
-  void sendCommand(uint8_t cmd, uint8_t* data, uint16_t dataLen);
-  bool readResponse(uint8_t* response, uint16_t& len);
-  uint16_t calculateChecksum(uint8_t* data, uint16_t len);
-  
+  void tprint(const char* msg);
+
 public:
-  FingerprintSensor(HardwareSerial& ser) : serial(ser), enrollCount(0) {}
-  
-  // Initialization
-  void begin(uint32_t baudrate = 57600);
-  
-  // Fingerprint operations
-  bool enrollNewFingerprint(uint8_t id);
-  bool verifyFingerprint(uint8_t& matchedId);
-  bool deleteFingerprint(uint8_t id);
-  bool deleteAllFingerprints();
-  
-  // System operations
-  uint16_t getFingerCount();
-  bool setSecurityLevel(uint8_t level);  // 1=highest, 5=lowest
-  
-  // Status
-  bool isConnected();
-  void printStatus();
-};
+  FingerprintSensor(HardwareSerial& ser) : serial(ser), finger(&ser), termPrint(nullptr) {}
 
-// External instance
-extern FingerprintSensor fingerprint;
+  void begin();
+  void setTerminalCallback(TerminalPrintFunc cb) { termPrint = cb; }
+
+  bool enrollNewFingerprint(uint8_t id);
+  bool deleteFingerprint(uint8_t id);
+  int  scanFingerprint();   // returns matched ID (>=1) or -1
+  bool isTouching();
+  bool isConnected();
+  bool isIdStored(uint8_t id);
+  bool deleteAll();
+  uint16_t getFingerCount();
+  void listAllIds(uint8_t* ids, uint8_t& count, uint8_t maxCount = 127);
+};

@@ -8,67 +8,56 @@
 #define BLYNK_TEMPLATE_ID "TMPL62490Ytpd"
 #define BLYNK_TEMPLATE_NAME "Warehouse Monitor"
 #define BLYNK_AUTH_TOKEN "8DCoq8k9dRpCYK5CanmygDgTEMG5Tkfd"
-#define BLYNK_PRINT Serial
 
-// Pin Mapping (Based on your schematic - Updated)
-#define DHT11_PIN 32              // Temperature/Humidity sensor (D32)
-#define MQ2_PIN 25                // Smoke analog input (D25)
-#define FIRE_SENSOR_PIN 33        // Fire detection (D33)
-#define BUTTON_PIN 26             // Physical button (D26)
-#define BUZZER_PIN 4              // Buzzer alert (D4)
-#define RELAY_PIN 23              // Light relay control (D23)
+// Pin Mapping
+#define DHT11_PIN 32              // DHT11 (D32)
+#define MQ2_PIN 25                // MQ2 analog (D25)
+#define FIRE_SENSOR_PIN 33        // Fire sensor (D33)
+#define BUTTON_PIN 26             // Button (D26)
+#define BUZZER_PIN 4              // Buzzer (D4)
+#define RELAY_PIN 23              // Relay đèn (D23)
 
-// UART Pin Mapping
-#define PZEM_RX 19                // PZEM-004T RX (D19 on Serial1)
-#define PZEM_TX 18                // PZEM-004T TX (D18 on Serial1)
-#define FINGERPRINT_RX 16         // AS608 RX (RX2 on Serial2)
-#define FINGERPRINT_TX 17         // AS608 TX (TX2 on Serial2)
+// UART Pins
+#define PZEM_RX 19
+#define PZEM_TX 18
+#define FINGERPRINT_RX 17
+#define FINGERPRINT_TX 16
+#define TCH_PIN 21                // AS608 touch detect (D21)
 
 // Sensor Thresholds
-#define SMOKE_THRESHOLD 400       // MQ2 analog value
-#define TEMP_THRESHOLD 40         // Temperature in Celsius
-#define FIRE_THRESHOLD 500        // Fire sensor analog threshold
-#define HUMIDITY_WARNING 80       // High humidity warning level
+#define SMOKE_THRESHOLD 400
+#define TEMP_THRESHOLD 40
+#define FIRE_THRESHOLD 500
 
-// Reading Intervals (milliseconds)
-#define DHT_READ_INTERVAL 5000    // 5 seconds
-#define MQ2_READ_INTERVAL 1000    // 1 second
-#define PZEM_READ_INTERVAL 2000   // 2 seconds
-#define BUTTON_DEBOUNCE 200       // ms
+// Reading Intervals (ms)
+#define DHT_READ_INTERVAL 5000
+#define MQ2_READ_INTERVAL 1000
+#define PZEM_READ_INTERVAL 2000
+#define BLYNK_UPDATE_INTERVAL 2000    // 2s - cập nhật nhanh
+#define FINGER_SCAN_INTERVAL 500      // 500ms - quét vân tay
 
-// Blynk Virtual Pins
-#define V_LIGHT_CONTROL V1        // Light ON/OFF
-#define V_BUZZER_TEST V2          // Test buzzer
-#define V_TEMPERATURE V3          // Temp reading
-#define V_HUMIDITY V4             // Humidity reading
-#define V_SMOKE_LEVEL V5          // Smoke level
-#define V_POWER V6                // Power consumption
-#define V_ENERGY V7               // Energy consumed
-#define V_VOLTAGE V8              // Voltage
-#define V_CURRENT V9              // Current
-#define V_FIRE_ALERT V10          // Fire status
-#define V_SMOKE_ALERT V11         // Smoke status
-#define V_LIGHT_STATUS V12        // Light state indicator
+// Blynk Virtual Pins (Free Plan - 5 datastreams)
+#define V_TEMP_HUMID V0           // String: "T:xx°C | H:xx%"
+#define V_POWER V1                // Double: Công suất (W) - SuperChart
+#define V_FIRE_ALERT V2           // Integer: LED báo cháy (đổi màu qua setProperty)
+#define V_FINGER_TERM V3          // String: Terminal - nhập ID vân tay
+#define V_LIGHT_SW V4             // Integer: 0=Tắt đèn, 1=Bật đèn (Switch)
+#define V_SMOKE_ALERT V5           // Integer: LED báo khói (đổi màu qua setProperty)
 
-// Google Sheets Integration
-#define GOOGLE_SCRIPT_ID "AKfycby1xw6E5SZI3QbD-ENx8ygVtkFo6qqXPNdQyUrAU680L-LhrzGXpxGPDU3W8rRZXOK0Dg"
-#define GOOGLE_SHEET_WEBHOOK "https://script.google.com/macros/d/AKfycby1xw6E5SZI3QbD-ENx8ygVtkFo6qqXPNdQyUrAU680L-LhrzGXpxGPDU3W8rRZXOK0Dg/usercallback"
-
-// Fingerprint Configuration
-#define FINGERPRINT_BAUD 57600
-#define MAX_FINGERPRINTS 10       // Maximum enrolled fingerprints
+// Fingerprint
+#define FINGERPRINT_BAUD 67200
 #define DEFAULT_ENROLLMENT_ATTEMPTS 3
 
-// PZEM-004T Configuration
+// PZEM-004T
 #define PZEM_BAUD 9600
-#define PZEM_SLAVE_ID 0xF8
 
-// System Configuration
-#define WIFI_RECONNECT_INTERVAL 30000  // 30 seconds
-#define BLYNK_RECONNECT_INTERVAL 5000  // 5 seconds
+// Google Sheets (thay URL sau khi deploy Apps Script)
+#define GOOGLE_SCRIPT_URL "https://script.google.com/macros/s/AKfycbw0ktkUoFzwpU-gwnFXvpEwQeq8mxdNVev1Hv66EjkUuArPwdKCbNok3PzmO40UUKfZIQ/exec"
+
+// NTP Time
+#define NTP_SERVER "pool.ntp.org"
+#define GMT_OFFSET_SEC (7 * 3600)     // GMT+7 Vietnam
+#define DAYLIGHT_OFFSET_SEC 0
+
+// System
 #define SERIAL_MONITOR_BAUD 115200
-#define MAX_ALERT_BUZZER_CYCLES 3      // Number of buzzer iterations
-
-// Time Zone (for timestamp logging)
-#define TIMEZONE 7                // UTC+7 for Vietnam
-#define DST_OFFSET 0              // No daylight saving
