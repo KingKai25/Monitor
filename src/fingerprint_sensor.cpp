@@ -1,6 +1,17 @@
+/*
+ * ============================================================
+ *  Module cảm biến vân tay AS608
+ *  Flow đăng kí: chụp ảnh lần 1 → xử lý → chụp ảnh lần 2
+ *              → xử lý → so khớp 2 mẫu → lưu vào flash
+ *  Flow quét:   chụp ảnh → xử lý → tìm kiếm trong database
+ *              → trả về ID đã đăng kí hoặc -1 (không tìm thấy)
+ * ============================================================
+ */
+
 #include "fingerprint_sensor.h"
 
 // ========== TERMINAL HELPER ==========
+// In message ra Serial + gửi lên Blynk Terminal (nếu có callback)
 void FingerprintSensor::tprint(const char* msg) {
   Serial.println(msg);
   if (termPrint) termPrint(msg);
@@ -12,7 +23,7 @@ void FingerprintSensor::begin() {
 
   serial.begin(FINGERPRINT_BAUD, SERIAL_8N1, FINGERPRINT_RX, FINGERPRINT_TX);
   finger.begin(FINGERPRINT_BAUD);
-  delay(1000);
+  delay(500);
 
   if (finger.verifyPassword()) {
     Serial.println("[Finger] AS608 ket noi thanh cong!");
@@ -66,7 +77,11 @@ bool FingerprintSensor::enrollNewFingerprint(uint8_t id) {
 
   // --- Merge + Store ---
   p = finger.createModel();
-  if (p == FINGERPRINT_ENROLLMISMATCH) { tprint("Lỗi: 2 lần quét KHÔNG khớp!"); return false; }
+  if (p == FINGERPRINT_ENROLLMISMATCH) {
+    tprint("Lỗi: 2 lần quét KHÔNG khớp!");
+    tprint("Xin hãy thử thêm lại.");
+    return false;
+  }
   if (p != FINGERPRINT_OK) { tprint("Lỗi: Tạo mô hình thất bại!"); return false; }
 
   p = finger.storeModel(id);
@@ -92,15 +107,16 @@ bool FingerprintSensor::deleteFingerprint(uint8_t id) {
 }
 
 // ========== SCAN ==========
+// Quét vân tay: trả về ID (>=1) nếu khớp, -1 nếu không có ngón tay, -2 nếu không nhận ra
 int FingerprintSensor::scanFingerprint() {
   uint8_t p = finger.getImage();
-  if (p != FINGERPRINT_OK) return -1;
+  if (p != FINGERPRINT_OK) return -1;  // Không có ngón tay hoặc lỗi chụp
 
   p = finger.image2Tz();
-  if (p != FINGERPRINT_OK) return -1;
+  if (p != FINGERPRINT_OK) return -2;  // Có ngón tay nhưng xử lý ảnh thất bại
 
   p = finger.fingerSearch();
-  if (p != FINGERPRINT_OK) return -1;
+  if (p != FINGERPRINT_OK) return -2;  // Có ngón tay nhưng không nhận ra
 
   return finger.fingerID;
 }
